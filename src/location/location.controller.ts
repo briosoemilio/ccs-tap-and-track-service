@@ -7,6 +7,7 @@ import {
   NotFoundException,
   ValidationPipe,
   UsePipes,
+  ConflictException,
 } from '@nestjs/common';
 import { LocationService } from './location.service';
 import { CreateLocationDto } from './dto/create-location.dto';
@@ -17,7 +18,12 @@ export class LocationController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  create(@Body() createLocationDto: CreateLocationDto) {
+  async create(@Body() createLocationDto: CreateLocationDto) {
+    const name = createLocationDto.name;
+    const location = await this.locationService.findOne(name);
+    if (location) {
+      throw new ConflictException(`Location already exists: ${name}`);
+    }
     return this.locationService.create(createLocationDto);
   }
 
