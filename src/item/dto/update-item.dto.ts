@@ -10,5 +10,5 @@ export class ChangeItemStatusDto extends PartialType(CreateItemDto) {
 
 export class ChangeItemLocationDto extends PartialType(CreateItemDto) {
   @IsNotEmpty()
-  locationId: number;
+  locationName: string;
 }

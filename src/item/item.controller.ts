@@ -64,12 +64,12 @@ export class ItemController {
     });
   }
 
-  @Get('category/:categoryId')
-  async findByCategory(@Param('categoryId') categoryId: string) {
-    const items = await this.itemService.findByCategory(parseInt(categoryId));
+  @Get('category/:categoryName')
+  async findByCategory(@Param('categoryName') categoryName: string) {
+    const items = await this.itemService.findByCategory(categoryName);
     if (!items || items.length === 0) {
       throw new NotFoundException(
-        `No items found for category ID: ${categoryId}`,
+        `No items found for category name: ${categoryName}`,
       );
     }
     return formatResponse({
@@ -102,7 +102,7 @@ export class ItemController {
   ) {
     const newItem = await this.itemService.updateItemLocation(
       parseInt(id),
-      updateItemDto.locationId,
+      updateItemDto.locationName,
     );
     return formatResponse({
       statusCode: HttpStatus.OK,

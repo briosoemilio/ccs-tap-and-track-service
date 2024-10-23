@@ -14,7 +14,6 @@ export class ItemService {
       ...createItemDto,
     };
     const newItem = await this.prisma.item.create({ data });
-    console.log('new item : ', { newItem });
     return newItem;
   }
 
@@ -33,9 +32,9 @@ export class ItemService {
     return item;
   }
 
-  async findByCategory(categoryId: number) {
+  async findByCategory(categoryName: string) {
     const items = await this.prisma.item.findMany({
-      where: { categoryId },
+      where: { categoryName },
     });
     return items;
   }
@@ -55,7 +54,7 @@ export class ItemService {
     return updatedItem;
   }
 
-  async updateItemLocation(id: number, locationId: number) {
+  async updateItemLocation(id: number, locationName: string) {
     const item = await this.prisma.item.findUnique({
       where: { id },
     });
@@ -65,7 +64,7 @@ export class ItemService {
 
     const updatedItem = await this.prisma.item.update({
       where: { id },
-      data: { locationId },
+      data: { locationName },
     });
     return updatedItem;
   }

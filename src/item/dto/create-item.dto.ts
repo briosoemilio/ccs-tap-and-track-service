@@ -11,9 +11,9 @@ export class CreateItemDto {
 
   @IsInt()
   @IsNotEmpty()
-  categoryId: number;
+  categoryName: string;
 
   @IsInt()
   @IsNotEmpty()
-  locationId: number;
+  locationName: string;
 }
