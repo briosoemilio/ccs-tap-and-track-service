@@ -28,41 +28,62 @@ enum FloorType {
 
 // Models
 model Item {
-  id         Int        @id @default(autoincrement())
-  uuid       String     @unique
-  name       String     @unique
-  metadata   String?
-  status     ItemStatus @default(AVAILABLE)
-  category   Category   @relation(fields: [categoryId], references: [id])
-  categoryId Int
-  location   Location   @relation(fields: [locationId], references: [id])
-  locationId Int
-  computer   Computer?  @relation(fields: [computerId], references: [id])
-  computerId Int?
+  id           Int        @id @default(autoincrement())
+  uuid         String     @unique
+  name         String     @unique
+  metadata     String?
+  status       ItemStatus @default(AVAILABLE)
+  category     Category   @relation(fields: [categoryName], references: [name])
+  categoryName String
+  location     Location   @relation(fields: [locationName], references: [name])
+  locationName String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  computerId   Int?
+
+  // relations
+  ComputerMonitor    Computer[] @relation("ComputerMonitor")
+  ComputerKeyboard   Computer[] @relation("ComputerKeyboard")
+  ComputerMouse      Computer[] @relation("ComputerMouse")
+  ComputerSystemUnit Computer[] @relation("ComputerSystemUnit")
+  ComputerOthers     Computer[] @relation("ComputerOthers")
 }
 
 model Category {
-  id       Int     @id @default(autoincrement())
-  uuid     String  @unique
-  name     String  @unique
-  metadata String?
-  Item     Item[]
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique
+  name      String   @unique
+  metadata  String?
+  Item      Item[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Location {
-  id       Int       @id @default(autoincrement())
-  uuid     String    @unique
-  name     String    @unique
-  floor    FloorType
-  metadata String?
-  Item     Item[]
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique
+  name      String    @unique
+  floor     FloorType
+  metadata  String?
+  Item      Item[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Computer {
-  id       Int     @id @default(autoincrement())
-  uuid     String  @unique
-  name     String  @unique
-  metadata String?
-
-  Item Item[]
+  id             Int      @id @default(autoincrement())
+  uuid           String   @unique
+  name           String   @unique
+  metadata       String?
+  monitor        Item?    @relation("ComputerMonitor", fields: [monitorName], references: [name])
+  monitorName    String?  @unique
+  keyboard       Item?    @relation("ComputerKeyboard", fields: [keyboardName], references: [name])
+  keyboardName   String?  @unique
+  mouse          Item?    @relation("ComputerMouse", fields: [mouseName], references: [name])
+  mouseName      String?  @unique
+  systemUnit     Item?    @relation("ComputerSystemUnit", fields: [systemUnitName], references: [name])
+  systemUnitName String?  @unique
+  others         Item[]   @relation("ComputerOthers")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
