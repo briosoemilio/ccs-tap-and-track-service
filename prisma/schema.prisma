@@ -30,6 +30,7 @@ enum FloorType {
 model Item {
   id         Int        @id @default(autoincrement())
   uuid       String     @unique
+  name       String     @unique
   metadata   String?
   status     ItemStatus @default(AVAILABLE)
   category   Category   @relation(fields: [categoryId], references: [id])
