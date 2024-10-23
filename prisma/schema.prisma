@@ -46,7 +46,6 @@ model Item {
   ComputerKeyboard   Computer[] @relation("ComputerKeyboard")
   ComputerMouse      Computer[] @relation("ComputerMouse")
   ComputerSystemUnit Computer[] @relation("ComputerSystemUnit")
-  ComputerOthers     Computer[] @relation("ComputerOthers")
 }
 
 model Category {
@@ -83,7 +82,7 @@ model Computer {
   mouseName      String?  @unique
   systemUnit     Item?    @relation("ComputerSystemUnit", fields: [systemUnitName], references: [name])
   systemUnitName String?  @unique
-  others         Item[]   @relation("ComputerOthers")
+  others         String[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
