@@ -39,6 +39,13 @@ export class ItemService {
     return items;
   }
 
+  async findByComputerId(computerId: number) {
+    const items = await this.prisma.item.findMany({
+      where: { computerId },
+    });
+    return items;
+  }
+
   async updateItemStatus(id: number, status: ItemStatus) {
     const item = await this.prisma.item.findUnique({
       where: { id },
