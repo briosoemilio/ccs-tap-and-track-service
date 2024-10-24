@@ -68,4 +68,19 @@ export class ItemService {
     });
     return updatedItem;
   }
+
+  async updateItemComputerId(itemId: number, computerId: number) {
+    const item = await this.prisma.item.findUnique({
+      where: { id: itemId },
+    });
+    if (!item) {
+      throw new NotFoundException(`Item not found with ID: ${itemId}`);
+    }
+
+    const updatedItem = await this.prisma.item.update({
+      where: { id: itemId },
+      data: { computerId },
+    });
+    return updatedItem;
+  }
 }
