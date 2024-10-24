@@ -25,7 +25,7 @@ export class LocationService {
     return allLocations;
   }
 
-  async findOne(name: string) {
+  async findByName(name: string) {
     const location: Location = await this.prisma.location.findFirst({
       where: {
         name: {

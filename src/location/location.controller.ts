@@ -20,7 +20,7 @@ export class LocationController {
   @UsePipes(new ValidationPipe())
   async create(@Body() createLocationDto: CreateLocationDto) {
     const name = createLocationDto.name;
-    const location = await this.locationService.findOne(name);
+    const location = await this.locationService.findByName(name);
     if (location) {
       throw new ConflictException(`Location already exists: ${name}`);
     }
@@ -34,9 +34,9 @@ export class LocationController {
 
   @Get(':name')
   async findOne(@Param('name') name: string) {
-    const location = await this.locationService.findOne(name);
+    const location = await this.locationService.findByName(name);
     if (!location) {
-      throw new NotFoundException(`Category Not Found: ${name}`);
+      throw new NotFoundException(`Location Not Found: ${name}`);
     }
     return location;
   }
