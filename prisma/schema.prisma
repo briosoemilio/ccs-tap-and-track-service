@@ -59,14 +59,15 @@ model Category {
 }
 
 model Location {
-  id        Int       @id @default(autoincrement())
-  uuid      String    @unique
-  name      String    @unique
+  id        Int        @id @default(autoincrement())
+  uuid      String     @unique
+  name      String     @unique
   floor     FloorType
   metadata  String?
   Item      Item[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  Computer  Computer[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Computer {
@@ -82,6 +83,8 @@ model Computer {
   mouseName      String?  @unique
   systemUnit     Item?    @relation("ComputerSystemUnit", fields: [systemUnitName], references: [name])
   systemUnitName String?  @unique
+  location       Location @relation(fields: [locationName], references: [name])
+  locationName   String
   others         String[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
