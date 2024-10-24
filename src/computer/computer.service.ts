@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateComputerDto } from './dto/create-computer.dto';
-import { UpdateComputerDto } from './dto/update-computer.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,8 +16,19 @@ export class ComputerService {
     return newComputer;
   }
 
-  findAll() {
-    return `This action returns all computer`;
+  async findAll(page: number, itemsPerPage: number) {
+    const skip = (page - 1) * itemsPerPage;
+    const computers = await this.prisma.computer.findMany({
+      skip: skip,
+      take: itemsPerPage,
+    });
+    const totalComputers = await this.prisma.computer.count();
+    return {
+      data: computers,
+      total: totalComputers,
+      page,
+      itemsPerPage,
+    };
   }
 
   async findByName(name: string) {
@@ -31,11 +41,20 @@ export class ComputerService {
     return computer;
   }
 
-  update(id: number, updateComputerDto: UpdateComputerDto) {
-    return `This action updates a #${id} computer`;
+  async findByLocation(locationName: string) {
+    const allComputers = await this.prisma.computer.findMany({
+      where: { locationName },
+    });
+    return allComputers;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} computer`;
+  async updateLocation(id: number, locationName: string) {
+    const relocatedComputer = await this.prisma.computer.update({
+      where: { id },
+      data: { locationName },
+    });
+    return relocatedComputer;
   }
+
+  
 }
