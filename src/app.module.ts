@@ -7,6 +7,7 @@ import { ItemModule } from './item/item.module';
 import { ComputerModule } from './computer/computer.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
     ComputerModule,
     UserModule,
     AuthModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

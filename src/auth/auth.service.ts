@@ -40,7 +40,7 @@ export class AuthService {
       name: user.name,
       uuid: user.uuid,
       yearSection: user?.yearSection || '',
-      idNumber: user?.studentNumber || user?.idNumber || '',
+      idNumber: user?.idNumber || '',
       email: user.email,
     };
 
