@@ -99,20 +99,18 @@ enum Role {
 }
 
 model User {
-  id            Int           @id @default(autoincrement())
-  uuid          String        @unique
-  email         String
-  password      String
-  name          String
-  role          Role
-  fullName      String?
-  yearSection   String?
-  studentNumber String?       @unique
-  idNumber      String?       @unique
-  reports       Report[]      @relation("UserReports")
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  ComputerLog   ComputerLog[]
+  id          Int           @id @default(autoincrement())
+  uuid        String        @unique
+  email       String
+  password    String
+  name        String
+  role        Role
+  yearSection String?
+  idNumber    String?       @unique
+  reports     Report[]      @relation("UserReports")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  ComputerLog ComputerLog[]
 }
 
 model Report {
