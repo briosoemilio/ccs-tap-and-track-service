@@ -8,6 +8,8 @@ import {
   HttpStatus,
   ConflictException,
   NotFoundException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -22,6 +24,7 @@ export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
   @Post()
+  @UsePipes(new ValidationPipe())
   async create(@Body() createItemDto: CreateItemDto) {
     // Check Name
     const checkName = await this.itemService.findByName(createItemDto.name);
@@ -80,6 +83,7 @@ export class ItemController {
   }
 
   @Patch('/status/:id')
+  @UsePipes(new ValidationPipe())
   async updateStatus(
     @Param('id') id: string,
     @Body() updateItemDto: ChangeItemStatusDto,
@@ -96,6 +100,7 @@ export class ItemController {
   }
 
   @Patch('/location/:id')
+  @UsePipes(new ValidationPipe())
   async updateLocation(
     @Param('id') id: string,
     @Body() updateItemDto: ChangeItemLocationDto,
