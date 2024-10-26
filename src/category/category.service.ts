@@ -19,12 +19,22 @@ export class CategoryService {
     return category;
   }
 
-  async findAll() {
-    const allCategories: Category[] = await this.prisma.category.findMany();
-    return allCategories;
+  async findAll(page: number, itemsPerPage: number) {
+    const skip = (page - 1) * itemsPerPage;
+    const categories = await this.prisma.category.findMany({
+      skip: skip,
+      take: itemsPerPage,
+    });
+    const totalCategories = await this.prisma.category.count();
+    return {
+      data: categories || [],
+      total: totalCategories || 0,
+      page,
+      itemsPerPage,
+    };
   }
 
-  async findOne(name: string) {
+  async findByName(name: string) {
     const category: Category = await this.prisma.category.findFirst({
       where: {
         name: {
