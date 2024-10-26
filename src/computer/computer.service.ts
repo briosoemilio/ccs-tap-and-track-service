@@ -24,8 +24,8 @@ export class ComputerService {
     });
     const totalComputers = await this.prisma.computer.count();
     return {
-      data: computers,
-      total: totalComputers,
+      data: computers || [],
+      total: totalComputers || 0,
       page,
       itemsPerPage,
     };
