@@ -9,6 +9,8 @@ import {
   Query,
   NotFoundException,
   BadRequestException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ComputerService } from './computer.service';
 import { CreateComputerDto } from './dto/create-computer.dto';
@@ -36,6 +38,7 @@ export class ComputerController {
   }
 
   @Post()
+  @UsePipes(new ValidationPipe())
   async create(@Body() createComputerDto: CreateComputerDto) {
     const {
       name,
@@ -115,6 +118,7 @@ export class ComputerController {
   }
 
   @Patch('/relocate/:id')
+  @UsePipes(new ValidationPipe())
   async relocateComputer(
     @Param('id') id: string,
     @Body() updateComputerLocationDto: UpdateComputerLocationDto,
