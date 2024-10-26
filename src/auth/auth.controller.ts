@@ -12,11 +12,13 @@ import {
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { formatResponse } from 'src/utils/formatResponse';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @UseGuards(LocalStrategy)
   @Post('/login')
   @UsePipes(new ValidationPipe())
   @Bind(Request())
