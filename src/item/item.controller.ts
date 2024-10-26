@@ -10,6 +10,7 @@ import {
   NotFoundException,
   UsePipes,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -44,8 +45,14 @@ export class ItemController {
   }
 
   @Get()
-  async findAll() {
-    const items = await this.itemService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('itemsPerPage') itemsPerPage: string = '10',
+  ) {
+    const items = await this.itemService.findAll(
+      parseInt(page),
+      parseInt(itemsPerPage),
+    );
     return formatResponse({
       statusCode: HttpStatus.OK,
       message: 'Items fetched successfully',
@@ -68,13 +75,16 @@ export class ItemController {
   }
 
   @Get('category/:categoryName')
-  async findByCategory(@Param('categoryName') categoryName: string) {
-    const items = await this.itemService.findByCategory(categoryName);
-    if (!items || items.length === 0) {
-      throw new NotFoundException(
-        `No items found for category name: ${categoryName}`,
-      );
-    }
+  async findByCategory(
+    @Param('categoryName') categoryName: string,
+    @Query('page') page: string = '1',
+    @Query('itemsPerPage') itemsPerPage: string = '10',
+  ) {
+    const items = await this.itemService.findByCategory(
+      categoryName,
+      parseInt(page),
+      parseInt(itemsPerPage),
+    );
     return formatResponse({
       statusCode: HttpStatus.OK,
       message: 'Items fetched successfully',

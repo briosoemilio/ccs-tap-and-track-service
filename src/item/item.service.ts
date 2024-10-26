@@ -17,9 +17,19 @@ export class ItemService {
     return newItem;
   }
 
-  async findAll() {
-    const allItems: Item[] = await this.prisma.item.findMany();
-    return allItems;
+  async findAll(page: number, itemsPerPage: number) {
+    const skip = (page - 1) * itemsPerPage;
+    const allItems: Item[] = await this.prisma.item.findMany({
+      skip: skip,
+      take: itemsPerPage,
+    });
+    const totalItems = await this.prisma.item.count();
+    return {
+      data: allItems || [],
+      total: totalItems || 0,
+      page,
+      itemsPerPage,
+    };
   }
 
   async findByName(name: string) {
@@ -32,11 +42,26 @@ export class ItemService {
     return item;
   }
 
-  async findByCategory(categoryName: string) {
-    const items = await this.prisma.item.findMany({
+  async findByCategory(
+    categoryName: string,
+    page: number,
+    itemsPerPage: number,
+  ) {
+    const skip = (page - 1) * itemsPerPage;
+    const categoryItems: Item[] = await this.prisma.item.findMany({
+      where: { categoryName },
+      skip: skip,
+      take: itemsPerPage,
+    });
+    const totalCategoryItems = await this.prisma.item.count({
       where: { categoryName },
     });
-    return items;
+    return {
+      data: categoryItems || [],
+      total: totalCategoryItems || 0,
+      page,
+      itemsPerPage,
+    };
   }
 
   async findByComputerId(computerId: number) {
