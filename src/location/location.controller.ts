@@ -8,9 +8,12 @@ import {
   ValidationPipe,
   UsePipes,
   ConflictException,
+  HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { LocationService } from './location.service';
 import { CreateLocationDto } from './dto/create-location.dto';
+import { formatResponse } from 'src/utils/formatResponse';
 
 @Controller('locations')
 export class LocationController {
@@ -24,12 +27,27 @@ export class LocationController {
     if (location) {
       throw new ConflictException(`Location already exists: ${name}`);
     }
-    return this.locationService.create(createLocationDto);
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `Location successfully created: ${name}`,
+      data: location,
+    });
   }
 
   @Get()
-  findAll() {
-    return this.locationService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('itemsPerPage') itemsPerPage: string = '10',
+  ) {
+    const allLocations = await this.locationService.findAll(
+      parseInt(page),
+      parseInt(itemsPerPage),
+    );
+    return formatResponse({
+      statusCode: HttpStatus.FOUND,
+      message: `Locations successfully fetched.`,
+      data: allLocations,
+    });
   }
 
   @Get(':name')

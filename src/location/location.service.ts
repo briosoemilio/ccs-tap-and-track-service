@@ -20,9 +20,19 @@ export class LocationService {
     return location;
   }
 
-  async findAll() {
-    const allLocations: Location[] = await this.prisma.location.findMany();
-    return allLocations;
+  async findAll(page: number, itemsPerPage: number) {
+    const skip = (page - 1) * itemsPerPage;
+    const allLocations = await this.prisma.location.findMany({
+      skip: skip,
+      take: itemsPerPage,
+    });
+    const totalLocations = await this.prisma.location.count();
+    return {
+      data: allLocations || [],
+      total: totalLocations || 0,
+      page,
+      itemsPerPage,
+    };
   }
 
   async findByName(name: string) {
