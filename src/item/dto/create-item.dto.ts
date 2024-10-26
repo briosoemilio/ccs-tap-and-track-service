@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateItemDto {
   @IsString()
@@ -9,11 +9,11 @@ export class CreateItemDto {
   @IsOptional()
   metadata?: string;
 
-  @IsInt()
+  @IsString()
   @IsNotEmpty()
   categoryName: string;
 
-  @IsInt()
+  @IsString()
   @IsNotEmpty()
   locationName: string;
 }
