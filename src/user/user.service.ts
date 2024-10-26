@@ -60,4 +60,9 @@ export class UserService {
       itemsPerPage,
     };
   }
+
+  async findByEmail(email: string) {
+    const userByEmail = await this.prisma.user.findFirst({ where: { email } });
+    return userByEmail;
+  }
 }
