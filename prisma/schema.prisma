@@ -46,6 +46,7 @@ model Item {
   ComputerKeyboard   Computer[] @relation("ComputerKeyboard")
   ComputerMouse      Computer[] @relation("ComputerMouse")
   ComputerSystemUnit Computer[] @relation("ComputerSystemUnit")
+  reports            Report[]   @relation("ItemReports")
 }
 
 model Category {
@@ -71,21 +72,78 @@ model Location {
 }
 
 model Computer {
-  id             Int      @id @default(autoincrement())
-  uuid           String   @unique
-  name           String   @unique
+  id             Int           @id @default(autoincrement())
+  uuid           String        @unique
+  name           String        @unique
   metadata       String?
-  monitor        Item?    @relation("ComputerMonitor", fields: [monitorName], references: [name])
-  monitorName    String?  @unique
-  keyboard       Item?    @relation("ComputerKeyboard", fields: [keyboardName], references: [name])
-  keyboardName   String?  @unique
-  mouse          Item?    @relation("ComputerMouse", fields: [mouseName], references: [name])
-  mouseName      String?  @unique
-  systemUnit     Item?    @relation("ComputerSystemUnit", fields: [systemUnitName], references: [name])
-  systemUnitName String?  @unique
-  location       Location @relation(fields: [locationName], references: [name])
+  monitor        Item?         @relation("ComputerMonitor", fields: [monitorName], references: [name])
+  monitorName    String?       @unique
+  keyboard       Item?         @relation("ComputerKeyboard", fields: [keyboardName], references: [name])
+  keyboardName   String?       @unique
+  mouse          Item?         @relation("ComputerMouse", fields: [mouseName], references: [name])
+  mouseName      String?       @unique
+  systemUnit     Item?         @relation("ComputerSystemUnit", fields: [systemUnitName], references: [name])
+  systemUnitName String?       @unique
+  location       Location      @relation(fields: [locationName], references: [name])
   locationName   String
   others         String[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  ComputerLog    ComputerLog[]
+}
+
+enum Role {
+  STUDENT
+  PROF
+  ADMIN
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  uuid          String        @unique
+  email         String
+  password      String
+  name          String
+  role          Role
+  fullName      String?
+  yearSection   String?
+  studentNumber String?       @unique
+  idNumber      String?       @unique
+  reports       Report[]      @relation("UserReports")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  ComputerLog   ComputerLog[]
+}
+
+model Report {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique
+  itemId     Int
+  reportedBy Int
+  remarks    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation("UserReports", fields: [reportedBy], references: [id])
+  item       Item     @relation("ItemReports", fields: [itemId], references: [id])
+
+  @@index([itemId])
+  @@index([reportedBy])
+}
+
+model ComputerLog {
+  id         Int       @id @default(autoincrement())
+  uuid       String    @unique
+  userId     Int
+  computerId Int
+  startedAt  DateTime  @default(now())
+  endedAt    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relationships
+  user     User     @relation(fields: [userId], references: [id])
+  computer Computer @relation(fields: [computerId], references: [id])
+
+  @@index([userId])
+  @@index([computerId])
 }
