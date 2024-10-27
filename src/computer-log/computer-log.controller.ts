@@ -10,6 +10,7 @@ import {
   UsePipes,
   ValidationPipe,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { ComputerLogService } from './computer-log.service';
 import { CreateComputerLogDto } from './dto/create-computer-log.dto';
@@ -79,7 +80,18 @@ export class ComputerLogController {
   @Get()
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
-  findAll() {
-    return this.computerLogService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('itemsPerPage') itemsPerPage: string = '10',
+  ) {
+    const computerLogs = await this.computerLogService.findAll(
+      parseInt(page),
+      parseInt(itemsPerPage),
+    );
+    return formatResponse({
+      statusCode: HttpStatus.FOUND,
+      message: 'Computer Logs list successfully fetched',
+      data: computerLogs,
+    });
   }
 }

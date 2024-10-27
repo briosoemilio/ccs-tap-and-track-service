@@ -16,8 +16,19 @@ export class ComputerLogService {
     return newLog;
   }
 
-  findAll() {
-    return `This action returns all computerLog`;
+  async findAll(page: number, itemsPerPage: number) {
+    const skip = (page - 1) * itemsPerPage;
+    const logs = await this.prisma.computerLog.findMany({
+      skip: skip,
+      take: itemsPerPage,
+    });
+    const totalLogs = await this.prisma.computerLog.count();
+    return {
+      data: logs || [],
+      total: totalLogs || 0,
+      page,
+      itemsPerPage,
+    };
   }
 
   async findByUUID(uuid: string) {
