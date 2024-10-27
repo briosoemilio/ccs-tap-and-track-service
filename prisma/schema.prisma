@@ -72,24 +72,25 @@ model Location {
 }
 
 model Computer {
-  id             Int           @id @default(autoincrement())
-  uuid           String        @unique
-  name           String        @unique
+  id             Int          @id @default(autoincrement())
+  uuid           String       @unique
+  name           String       @unique
   metadata       String?
-  monitor        Item?         @relation("ComputerMonitor", fields: [monitorName], references: [name])
-  monitorName    String?       @unique
-  keyboard       Item?         @relation("ComputerKeyboard", fields: [keyboardName], references: [name])
-  keyboardName   String?       @unique
-  mouse          Item?         @relation("ComputerMouse", fields: [mouseName], references: [name])
-  mouseName      String?       @unique
-  systemUnit     Item?         @relation("ComputerSystemUnit", fields: [systemUnitName], references: [name])
-  systemUnitName String?       @unique
-  location       Location      @relation(fields: [locationName], references: [name])
+  monitor        Item?        @relation("ComputerMonitor", fields: [monitorName], references: [name])
+  monitorName    String?      @unique
+  keyboard       Item?        @relation("ComputerKeyboard", fields: [keyboardName], references: [name])
+  keyboardName   String?      @unique
+  mouse          Item?        @relation("ComputerMouse", fields: [mouseName], references: [name])
+  mouseName      String?      @unique
+  systemUnit     Item?        @relation("ComputerSystemUnit", fields: [systemUnitName], references: [name])
+  systemUnitName String?      @unique
+  location       Location     @relation(fields: [locationName], references: [name])
   locationName   String
   others         String[]
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  ComputerLog    ComputerLog[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  lastLog        ComputerLog? @relation("LastLog", fields: [lastLogUUID], references: [uuid])
+  lastLogUUID    String?      @unique
 }
 
 enum Role {
@@ -139,8 +140,8 @@ model ComputerLog {
   updatedAt  DateTime  @updatedAt
 
   // Relationships
-  user     User     @relation(fields: [userId], references: [id])
-  computer Computer @relation(fields: [computerId], references: [id])
+  user     User       @relation(fields: [userId], references: [id])
+  Computer Computer[] @relation("LastLog")
 
   @@index([userId])
   @@index([computerId])
