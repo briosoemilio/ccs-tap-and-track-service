@@ -56,5 +56,11 @@ export class ComputerService {
     return relocatedComputer;
   }
 
-  
+  async updateLastLog(id: number, lastLogUUID: string) {
+    const updatedComputer = await this.prisma.computer.update({
+      where: { id },
+      data: { lastLogUUID },
+    });
+    return updatedComputer;
+  }
 }

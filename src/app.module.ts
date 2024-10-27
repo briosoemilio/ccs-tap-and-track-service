@@ -8,6 +8,7 @@ import { ComputerModule } from './computer/computer.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ReportModule } from './report/report.module';
+import { ComputerLogModule } from './computer-log/computer-log.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ReportModule } from './report/report.module';
     UserModule,
     AuthModule,
     ReportModule,
+    ComputerLogModule,
   ],
   controllers: [AppController],
   providers: [AppService],
