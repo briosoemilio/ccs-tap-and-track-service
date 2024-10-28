@@ -1,5 +1,6 @@
 import { FloorType, PrismaClient, Role } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -43,12 +44,12 @@ const createSeedLocation = async () => {
 };
 
 const createSeedUsers = async () => {
-  // Create locations
+  const saltOrRounds = 10;
   const students = [
     {
       uuid: uuidv4(),
       email: 'student_1@mail.com',
-      password: 'password1',
+      password: await bcrypt.hash('password1', saltOrRounds),
       name: 'Student One Dela Cruz',
       role: Role.STUDENT,
       yearSection: 'BSIT-4A',
@@ -57,7 +58,7 @@ const createSeedUsers = async () => {
     {
       uuid: uuidv4(),
       email: 'student_2@mail.com',
-      password: 'password2',
+      password: await bcrypt.hash('password2', saltOrRounds),
       name: 'Student Two Santos',
       role: Role.STUDENT,
       yearSection: 'BSIT-4A',
@@ -66,7 +67,7 @@ const createSeedUsers = async () => {
     {
       uuid: uuidv4(),
       email: 'student_3@mail.com',
-      password: 'password3',
+      password: await bcrypt.hash('password3', saltOrRounds),
       name: 'Student Three Lopez',
       role: Role.STUDENT,
       yearSection: 'BSIT-4A',
@@ -75,7 +76,8 @@ const createSeedUsers = async () => {
     {
       uuid: uuidv4(),
       email: 'student_4@mail.com',
-      password: 'password4',
+
+      password: await bcrypt.hash('password4', saltOrRounds),
       name: 'Student Four Bautista',
       role: Role.STUDENT,
       yearSection: 'BSIT-4A',
@@ -84,7 +86,7 @@ const createSeedUsers = async () => {
     {
       uuid: uuidv4(),
       email: 'student_5@mail.com',
-      password: 'password5',
+      password: await bcrypt.hash('password5', saltOrRounds),
       name: 'Student Five de Guzman',
       role: Role.STUDENT,
       yearSection: 'BSIT-4A',
@@ -96,7 +98,8 @@ const createSeedUsers = async () => {
     {
       uuid: uuidv4(),
       email: 'prof_1@mail.com',
-      password: 'password1',
+
+      password: await bcrypt.hash('password1', saltOrRounds),
       name: 'Prof 1 Espino',
       role: Role.PROF,
       idNumber: '96-103-001',
@@ -104,7 +107,8 @@ const createSeedUsers = async () => {
     {
       uuid: uuidv4(),
       email: 'prof_2@mail.com',
-      password: 'password2',
+
+      password: await bcrypt.hash('password2', saltOrRounds),
       name: 'Prof 2 Tagud',
       role: Role.PROF,
       idNumber: '96-103-002',
@@ -112,7 +116,7 @@ const createSeedUsers = async () => {
     {
       uuid: uuidv4(),
       email: 'prof_3@mail.com',
-      password: 'password3',
+      password: await bcrypt.hash('password3', saltOrRounds),
       name: 'Prof 3 Garbin',
       role: Role.PROF,
       idNumber: '96-103-003',
@@ -120,7 +124,7 @@ const createSeedUsers = async () => {
     {
       uuid: uuidv4(),
       email: 'prof_4@mail.com',
-      password: 'password4',
+      password: await bcrypt.hash('password4', saltOrRounds),
       name: 'Prof 4 Robles',
       role: Role.PROF,
       idNumber: '96-103-004',
@@ -128,7 +132,7 @@ const createSeedUsers = async () => {
     {
       uuid: uuidv4(),
       email: 'prof_5@mail.com',
-      password: 'password5',
+      password: await bcrypt.hash('password5', saltOrRounds),
       name: 'Prof 5 Javier',
       role: Role.PROF,
       idNumber: '96-103-005',
@@ -138,7 +142,7 @@ const createSeedUsers = async () => {
   const admin = {
     uuid: uuidv4(),
     email: 'admin1@mail.com',
-    password: 'password1',
+    password: await bcrypt.hash('password1', saltOrRounds),
     name: 'Admin Prime',
     role: Role.ADMIN,
   };
