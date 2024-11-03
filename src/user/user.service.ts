@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -11,6 +11,8 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
+    await this.validateUser(createUserDto.email, createUserDto.idNumber);
+
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(
       createUserDto.password,
@@ -64,5 +66,26 @@ export class UserService {
   async findByEmail(email: string) {
     const userByEmail = await this.prisma.user.findFirst({ where: { email } });
     return userByEmail;
+  }
+
+  async findByIdNumber(idNumber: string) {
+    const userByIdNumber = await this.prisma.user.findFirst({
+      where: { idNumber },
+    });
+    return userByIdNumber;
+  }
+
+  async validateUser(email: string, idNumber: string) {
+    const checkEmail = await this.findByEmail(email);
+    if (checkEmail) {
+      throw new BadRequestException(`Email already used : ${email}`);
+    }
+
+    const checkIdNumber = await this.findByIdNumber(idNumber);
+    if (checkIdNumber) {
+      throw new BadRequestException(
+        `ID Number already used : ${checkIdNumber}`,
+      );
+    }
   }
 }
