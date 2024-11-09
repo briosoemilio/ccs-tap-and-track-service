@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import { isIntegerString } from 'src/utils/isInteger';
 import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
+import { ItemStatus } from '@prisma/client';
 
 @Injectable()
 export class ComputerService {
@@ -102,13 +103,14 @@ export class ComputerService {
       where: {
         name: { in: componentNames },
       },
-      select: { status: true },
+      select: { id: true, name: true, uuid: true, status: true },
     });
 
-    const inRepair = components.some(
-      (component) => component.status === 'UNDER_MAINTENANCE',
-    );
+    const inRepairComponents = components.filter((component) => {
+      if (component.status === ItemStatus.UNDER_MAINTENANCE) return component;
+    });
+    const inRepair = inRepairComponents.length > 0;
 
-    return inRepair;
+    return { inRepair, inRepairComponents };
   }
 }

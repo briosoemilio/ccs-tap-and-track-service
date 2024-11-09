@@ -21,6 +21,7 @@ import { ItemService } from 'src/item/item.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LocationService } from 'src/location/location.service';
 import { ComputerLogService } from 'src/computer-log/computer-log.service';
+import { ItemStatus } from '@prisma/client';
 
 @Controller('computers')
 export class ComputerController {
@@ -125,26 +126,27 @@ export class ComputerController {
     const computer = await this.computerService.findByIdentifier(identifier);
     if (!computer)
       throw new NotFoundException(`Computer not found : ${identifier}.`);
-    let computerStatus = 'available';
+    let computerStatus: ItemStatus = ItemStatus.AVAILABLE;
 
     const lastLog = computer?.lastLogUUID;
     if (lastLog) {
       const computerLog = await this.computerLogService.findByUUID(lastLog);
       const endedAt = computerLog.endedAt;
       if (endedAt === null) {
-        computerStatus = 'in-use';
+        computerStatus = ItemStatus.IN_USE;
       }
     }
 
-    const inRepair = await this.computerService.checkIfInRepair(computer.id);
+    const checkPC = await this.computerService.checkIfInRepair(computer.id);
+    const { inRepair, inRepairComponents } = checkPC;
     if (inRepair) {
-      computerStatus = 'under_maintenance';
+      computerStatus = ItemStatus.UNDER_MAINTENANCE;
     }
 
     return formatResponse({
       statusCode: HttpStatus.FOUND,
       message: `Computer status with identifier : ${identifier}`,
-      data: { computerStatus },
+      data: { computerStatus, inRepairComponents },
     });
   }
 
