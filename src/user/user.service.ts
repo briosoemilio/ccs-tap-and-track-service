@@ -47,6 +47,11 @@ export class UserService {
     return user;
   }
 
+  async findByUUID(uuid: string) {
+    const user = await this.prisma.user.findUnique({ where: { uuid } });
+    return user;
+  }
+
   async findByRole(role: Role, page: number, itemsPerPage: number) {
     const skip = (page - 1) * itemsPerPage;
     const userByRole = await this.prisma.user.findMany({

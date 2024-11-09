@@ -72,7 +72,13 @@ export class UserController {
 
   @Get(':id')
   async findById(@Param('id') id: string) {
-    const user = await this.userService.findById(parseInt(id));
+    let user;
+    if (parseInt(id)) {
+      user = await this.userService.findById(parseInt(id));
+    } else {
+      user = await this.userService.findByUUID(id);
+    }
+
     if (!user) throw new NotFoundException(`User ID not found: ${id}`);
     return formatResponse({
       statusCode: HttpStatus.FOUND,
@@ -80,5 +86,4 @@ export class UserController {
       data: user,
     });
   }
-
 }
