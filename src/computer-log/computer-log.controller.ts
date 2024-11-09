@@ -43,18 +43,28 @@ export class ComputerLogController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
-  async create(@Body() createComputerLogDto: CreateComputerLogDto) {
-    const { userId, computerId } = createComputerLogDto;
+  async create(
+    @Body() createComputerLogDto: CreateComputerLogDto,
+    @Request() req,
+  ) {
+    const { computerId } = createComputerLogDto;
+
+    // decode token
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+
+    // get user
+    const user = await this.userService.findByUUID(decodedToken?.uuid);
 
     return await this.prisma.$transaction(async () => {
       // validate user
-      await this.computerLogValidator.validateUser(userId);
+      await this.computerLogValidator.validateUser(user.id);
 
       // validate computer
       await this.computerLogValidator.validateComputer(computerId);
 
       // create log
-      const newLog = await this.computerLogService.create(createComputerLogDto);
+      const newLog = await this.computerLogService.create(user.id, computerId);
 
       // update computer logs
       await this.computerLogValidator.updateLatestLog(computerId, newLog.uuid);
@@ -66,10 +76,13 @@ export class ComputerLogController {
     });
   }
 
-  @Patch('/end-log/:id')
+  @Patch('/end-log/:identifier')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
-  async endComputerLog(@Param('id') id: string, @Request() req) {
+  async endComputerLog(
+    @Param('identifier') identifier: string,
+    @Request() req,
+  ) {
     // decode token
     const bearerToken = req.headers.authorization?.split(' ')[1];
     const decodedToken = await this.jwtService.decode(bearerToken);
@@ -78,13 +91,14 @@ export class ComputerLogController {
     const user = await this.userService.findByUUID(decodedToken?.uuid);
 
     // validate computer log
-    const computerLog = await this.computerLogService.findByID(parseInt(id));
+    const computerLog =
+      await this.computerLogService.findByIdentifier(identifier);
     if (!computerLog)
-      throw new NotFoundException(`Computer Log not found : ${id}.`);
+      throw new NotFoundException(`Computer Log not found : ${identifier}.`);
 
     // update computer log
     const updatedComputerLog = await this.computerLogService.endComputerLog(
-      parseInt(id),
+      computerLog.id,
       user?.id,
     );
     return formatResponse({

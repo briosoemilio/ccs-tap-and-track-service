@@ -9,10 +9,11 @@ import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
 export class ComputerLogService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createComputerLogDto: CreateComputerLogDto) {
+  async create(userId: number, computerId: number) {
     const data = {
       uuid: uuidv4(),
-      ...createComputerLogDto,
+      userId,
+      computerId,
     };
     const newLog = await this.prisma.computerLog.create({ data });
     return newLog;
