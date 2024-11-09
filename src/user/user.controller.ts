@@ -18,6 +18,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { formatResponse } from 'src/utils/formatResponse';
 import { Role } from '@prisma/client';
+import { isIntegerString } from 'src/utils/isInteger';
+import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
 
 @Controller('users')
 export class UserController {
@@ -70,20 +72,30 @@ export class UserController {
     });
   }
 
-  @Get(':id')
-  async findById(@Param('id') id: string) {
-    let user;
-    if (parseInt(id)) {
-      user = await this.userService.findById(parseInt(id));
-    } else {
-      user = await this.userService.findByUUID(id);
-    }
+  @Get(':identifier')
+  async findById(@Param('identifier') identifier: string) {
+    const user = await this.findByIdentifier(identifier);
+    if (!user) throw new NotFoundException(`User ID not found: ${identifier}`);
 
-    if (!user) throw new NotFoundException(`User ID not found: ${id}`);
     return formatResponse({
       statusCode: HttpStatus.FOUND,
-      message: 'User successfully fetched',
+      message: `User successfully fetched: ${identifier}`,
       data: user,
     });
+  }
+
+  private async findByIdentifier(identifier: string) {
+    // if identifier is id
+    if (isIntegerString(identifier)) {
+      return await this.userService.findById(parseInt(identifier));
+    }
+
+    // if identifier is uuid
+    if (isIdentifierUUID(identifier)) {
+      return await this.userService.findByUUID(identifier);
+    }
+
+    // if identifier is id number
+    return await this.userService.findByIdNumber(identifier);
   }
 }

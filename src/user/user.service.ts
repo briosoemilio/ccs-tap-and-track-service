@@ -52,6 +52,11 @@ export class UserService {
     return user;
   }
 
+  async findByIDNumber(idNumber: string) {
+    const user = await this.prisma.user.findUnique({ where: { idNumber } });
+    return user;
+  }
+
   async findByRole(role: Role, page: number, itemsPerPage: number) {
     const skip = (page - 1) * itemsPerPage;
     const userByRole = await this.prisma.user.findMany({
