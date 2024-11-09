@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateComputerLogDto } from './dto/create-computer-log.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { isIntegerString } from 'src/utils/isInteger';
+import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
 
 @Injectable()
 export class ComputerLogService {
@@ -31,6 +33,11 @@ export class ComputerLogService {
     };
   }
 
+  async findByID(id: number) {
+    const log = await this.prisma.computerLog.findUnique({ where: { id } });
+    return log;
+  }
+
   async findByUUID(uuid: string) {
     const log = await this.prisma.computerLog.findUnique({ where: { uuid } });
     return log;
@@ -42,6 +49,18 @@ export class ComputerLogService {
       data: { endedAt: new Date() },
     });
     return updatedLog;
+  }
+
+  async findByIdentifier(identifier: string) {
+    // if identifier is id
+    if (isIntegerString(identifier)) {
+      return await this.findByID(parseInt(identifier));
+    }
+
+    // if identifier is uuid
+    if (isIdentifierUUID(identifier)) {
+      return await this.findByUUID(identifier);
+    }
   }
 
   remove(id: number) {

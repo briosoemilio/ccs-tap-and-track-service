@@ -11,6 +11,7 @@ import {
   ValidationPipe,
   HttpStatus,
   Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { ComputerLogService } from './computer-log.service';
 import { CreateComputerLogDto } from './dto/create-computer-log.dto';
@@ -74,6 +75,33 @@ export class ComputerLogController {
       statusCode: HttpStatus.OK,
       message: `Log successfully ended:  ${updatedComputerLog.uuid}`,
       data: updatedComputerLog,
+    });
+  }
+
+  @Get(':identifier')
+  async findOne(@Param('identifier') identifier: string) {
+    const computerLog =
+      await this.computerLogService.findByIdentifier(identifier);
+    if (!computerLog)
+      throw new NotFoundException(`Computer not found : ${identifier}.`);
+
+    const user = await this.userService.findById(computerLog.userId);
+    const computer = await this.computerService.findById(
+      computerLog.computerId,
+    );
+
+    const data = {
+      ...computerLog,
+      user,
+      computer,
+    };
+    delete data.userId;
+    delete data.computerId;
+
+    return formatResponse({
+      statusCode: HttpStatus.FOUND,
+      message: `Computer log fetched with identifier : ${identifier}`,
+      data,
     });
   }
 
