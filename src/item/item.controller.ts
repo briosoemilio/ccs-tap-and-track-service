@@ -60,11 +60,11 @@ export class ItemController {
     });
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const item = await this.itemService.findByID(parseInt(id));
+  @Get(':identifier')
+  async findOne(@Param('identifier') identifier: string) {
+    const item = await this.itemService.findByIdentifier(identifier);
     if (!item) {
-      throw new NotFoundException(`Item not found : ${id}`);
+      throw new NotFoundException(`Item not found : ${identifier}`);
     }
 
     return formatResponse({

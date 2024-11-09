@@ -3,6 +3,8 @@ import { CreateItemDto } from './dto/create-item.dto';
 import { Item, ItemStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
+import { isIntegerString } from 'src/utils/isInteger';
+import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
 
 @Injectable()
 export class ItemService {
@@ -39,6 +41,11 @@ export class ItemService {
 
   async findByID(id: number) {
     const item = await this.prisma.item.findUnique({ where: { id } });
+    return item;
+  }
+
+  async findByUUID(uuid: string) {
+    const item = await this.prisma.item.findUnique({ where: { uuid } });
     return item;
   }
 
@@ -114,5 +121,20 @@ export class ItemService {
       data: { computerId },
     });
     return updatedItem;
+  }
+
+  async findByIdentifier(identifier: string) {
+    // if identifier is id
+    if (isIntegerString(identifier)) {
+      return await this.findByID(parseInt(identifier));
+    }
+
+    // if identifier is uuid
+    if (isIdentifierUUID(identifier)) {
+      return await this.findByUUID(identifier);
+    }
+
+    // if identifier is id number
+    return await this.findByName(identifier);
   }
 }
