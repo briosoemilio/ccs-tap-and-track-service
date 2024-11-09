@@ -74,7 +74,7 @@ export class UserController {
 
   @Get(':identifier')
   async findById(@Param('identifier') identifier: string) {
-    const user = await this.findByIdentifier(identifier);
+    const user = await this.userService.findByIdentifier(identifier);
     if (!user) throw new NotFoundException(`User ID not found: ${identifier}`);
 
     return formatResponse({
@@ -82,20 +82,5 @@ export class UserController {
       message: `User successfully fetched: ${identifier}`,
       data: user,
     });
-  }
-
-  private async findByIdentifier(identifier: string) {
-    // if identifier is id
-    if (isIntegerString(identifier)) {
-      return await this.userService.findById(parseInt(identifier));
-    }
-
-    // if identifier is uuid
-    if (isIdentifierUUID(identifier)) {
-      return await this.userService.findByUUID(identifier);
-    }
-
-    // if identifier is id number
-    return await this.userService.findByIdNumber(identifier);
   }
 }

@@ -5,6 +5,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { Role } from '@prisma/client';
+import { isIntegerString } from 'src/utils/isInteger';
+import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
 
 @Injectable()
 export class UserService {
@@ -97,5 +99,20 @@ export class UserService {
         `ID Number already used : ${checkIdNumber}`,
       );
     }
+  }
+
+  async findByIdentifier(identifier: string) {
+    // if identifier is id
+    if (isIntegerString(identifier)) {
+      return await this.findById(parseInt(identifier));
+    }
+
+    // if identifier is uuid
+    if (isIdentifierUUID(identifier)) {
+      return await this.findByUUID(identifier);
+    }
+
+    // if identifier is id number
+    return await this.findByIdNumber(identifier);
   }
 }
