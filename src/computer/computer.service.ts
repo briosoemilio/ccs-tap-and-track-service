@@ -41,6 +41,11 @@ export class ComputerService {
     return computer;
   }
 
+  async findByUUID(uuid: string) {
+    const computer = await this.prisma.computer.findUnique({ where: { uuid } });
+    return computer;
+  }
+
   async findByLocation(locationName: string) {
     const allComputers = await this.prisma.computer.findMany({
       where: { locationName },

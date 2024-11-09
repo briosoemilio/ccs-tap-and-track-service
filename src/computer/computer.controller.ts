@@ -20,6 +20,8 @@ import { formatResponse } from 'src/utils/formatResponse';
 import { ItemService } from 'src/item/item.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LocationService } from 'src/location/location.service';
+import { isIntegerString } from 'src/utils/isInteger';
+import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
 
 @Controller('computers')
 export class ComputerController {
@@ -105,14 +107,15 @@ export class ComputerController {
     });
   }
 
-  @Get(':name')
-  async findOne(@Param('name') name: string) {
-    const computer = await this.computerService.findByName(name);
-    if (!computer) throw new NotFoundException(`Computer not found : ${name}.`);
+  @Get(':identifier')
+  async findOne(@Param('identifier') identifier: string) {
+    const computer = await this.findByIdentifier(identifier);
+    if (!computer)
+      throw new NotFoundException(`Computer not found : ${identifier}.`);
 
     return formatResponse({
       statusCode: HttpStatus.FOUND,
-      message: `Computer fetched with name : ${name}`,
+      message: `Computer fetched with name : ${identifier}`,
       data: computer,
     });
   }
@@ -154,5 +157,20 @@ export class ComputerController {
         data: relocatedComputer,
       });
     });
+  }
+
+  private async findByIdentifier(identifier: string) {
+    // if identifier is id
+    if (isIntegerString(identifier)) {
+      return await this.computerService.findById(parseInt(identifier));
+    }
+
+    // if identifier is uuid
+    if (isIdentifierUUID(identifier)) {
+      return await this.computerService.findByUUID(identifier);
+    }
+
+    // if identifier is name
+    return await this.computerService.findByName(identifier);
   }
 }
