@@ -109,7 +109,7 @@ export class ComputerController {
 
   @Get(':identifier')
   async findOne(@Param('identifier') identifier: string) {
-    const computer = await this.findByIdentifier(identifier);
+    const computer = await this.computerService.findByIdentifier(identifier);
     if (!computer)
       throw new NotFoundException(`Computer not found : ${identifier}.`);
 
@@ -157,20 +157,5 @@ export class ComputerController {
         data: relocatedComputer,
       });
     });
-  }
-
-  private async findByIdentifier(identifier: string) {
-    // if identifier is id
-    if (isIntegerString(identifier)) {
-      return await this.computerService.findById(parseInt(identifier));
-    }
-
-    // if identifier is uuid
-    if (isIdentifierUUID(identifier)) {
-      return await this.computerService.findByUUID(identifier);
-    }
-
-    // if identifier is name
-    return await this.computerService.findByName(identifier);
   }
 }

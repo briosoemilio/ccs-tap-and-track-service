@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateComputerDto } from './dto/create-computer.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
+import { isIntegerString } from 'src/utils/isInteger';
+import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
 
 @Injectable()
 export class ComputerService {
@@ -67,5 +69,20 @@ export class ComputerService {
       data: { lastLogUUID },
     });
     return updatedComputer;
+  }
+
+  async findByIdentifier(identifier: string) {
+    // if identifier is id
+    if (isIntegerString(identifier)) {
+      return await this.findById(parseInt(identifier));
+    }
+
+    // if identifier is uuid
+    if (isIdentifierUUID(identifier)) {
+      return await this.findByUUID(identifier);
+    }
+
+    // if identifier is name
+    return await this.findByName(identifier);
   }
 }
