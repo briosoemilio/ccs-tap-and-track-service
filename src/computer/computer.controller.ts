@@ -20,8 +20,7 @@ import { formatResponse } from 'src/utils/formatResponse';
 import { ItemService } from 'src/item/item.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LocationService } from 'src/location/location.service';
-import { isIntegerString } from 'src/utils/isInteger';
-import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
+import { ComputerLogService } from 'src/computer-log/computer-log.service';
 
 @Controller('computers')
 export class ComputerController {
@@ -31,6 +30,7 @@ export class ComputerController {
     private readonly computerService: ComputerService,
     private readonly itemService: ItemService,
     private readonly locationService: LocationService,
+    private readonly computerLogService: ComputerLogService,
   ) {
     this.computerValidator = new ComputerValidator(
       this.itemService,
@@ -117,6 +117,34 @@ export class ComputerController {
       statusCode: HttpStatus.FOUND,
       message: `Computer fetched with name : ${identifier}`,
       data: computer,
+    });
+  }
+
+  @Get('/status/:identifier')
+  async getStatus(@Param('identifier') identifier: string) {
+    const computer = await this.computerService.findByIdentifier(identifier);
+    if (!computer)
+      throw new NotFoundException(`Computer not found : ${identifier}.`);
+    let computerStatus = 'available';
+
+    const lastLog = computer?.lastLogUUID;
+    if (lastLog) {
+      const computerLog = await this.computerLogService.findByUUID(lastLog);
+      const endedAt = computerLog.endedAt;
+      if (endedAt === null) {
+        computerStatus = 'in-use';
+      }
+    }
+
+    const inRepair = await this.computerService.checkIfInRepair(computer.id);
+    if (inRepair) {
+      computerStatus = 'under_maintenance';
+    }
+
+    return formatResponse({
+      statusCode: HttpStatus.FOUND,
+      message: `Computer status with identifier : ${identifier}`,
+      data: { computerStatus },
     });
   }
 

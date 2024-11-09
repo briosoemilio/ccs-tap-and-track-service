@@ -85,4 +85,30 @@ export class ComputerService {
     // if identifier is name
     return await this.findByName(identifier);
   }
+
+  async checkIfInRepair(id: number) {
+    const computer = await this.prisma.computer.findUnique({ where: { id } });
+    const { keyboardName, monitorName, mouseName, systemUnitName, others } =
+      computer;
+    const componentNames = [
+      keyboardName,
+      monitorName,
+      mouseName,
+      systemUnitName,
+      ...others,
+    ];
+
+    const components = await this.prisma.item.findMany({
+      where: {
+        name: { in: componentNames },
+      },
+      select: { status: true },
+    });
+
+    const inRepair = components.some(
+      (component) => component.status === 'UNDER_MAINTENANCE',
+    );
+
+    return inRepair;
+  }
 }
