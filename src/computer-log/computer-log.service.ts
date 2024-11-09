@@ -43,10 +43,10 @@ export class ComputerLogService {
     return log;
   }
 
-  async endComputerLog(id: number) {
+  async endComputerLog(id: number, endedBy: number) {
     const updatedLog = await this.prisma.computerLog.update({
       where: { id },
-      data: { endedAt: new Date() },
+      data: { endedAt: new Date(), endedBy },
     });
     return updatedLog;
   }

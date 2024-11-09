@@ -5,13 +5,13 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UseGuards,
   UsePipes,
   ValidationPipe,
   HttpStatus,
   Query,
   NotFoundException,
+  Request,
 } from '@nestjs/common';
 import { ComputerLogService } from './computer-log.service';
 import { CreateComputerLogDto } from './dto/create-computer-log.dto';
@@ -21,6 +21,7 @@ import { ComputerLogValidator } from './validators/computer-log-validator';
 import { ComputerService } from 'src/computer/computer.service';
 import { UserService } from 'src/user/user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('computer-logs')
 export class ComputerLogController {
@@ -30,6 +31,7 @@ export class ComputerLogController {
     private readonly computerLogService: ComputerLogService,
     private readonly computerService: ComputerService,
     private readonly userService: UserService,
+    private readonly jwtService: JwtService,
   ) {
     this.computerLogValidator = new ComputerLogValidator(
       this.computerService,
@@ -67,9 +69,23 @@ export class ComputerLogController {
   @Patch('/end-log/:id')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
-  async endComputerLog(@Param('id') id: string) {
+  async endComputerLog(@Param('id') id: string, @Request() req) {
+    // decode token
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+
+    // get user
+    const user = await this.userService.findByUUID(decodedToken?.uuid);
+
+    // validate computer log
+    const computerLog = await this.computerLogService.findByID(parseInt(id));
+    if (!computerLog)
+      throw new NotFoundException(`Computer Log not found : ${id}.`);
+
+    // update computer log
     const updatedComputerLog = await this.computerLogService.endComputerLog(
       parseInt(id),
+      user?.id,
     );
     return formatResponse({
       statusCode: HttpStatus.OK,
