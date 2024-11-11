@@ -109,6 +109,7 @@ model User {
   yearSection String?
   idNumber    String?       @unique
   reports     Report[]      @relation("UserReports")
+  isLogged    Boolean       @default(false)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   ComputerLog ComputerLog[]
