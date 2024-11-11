@@ -115,4 +115,11 @@ export class UserService {
     // if identifier is id number
     return await this.findByIdNumber(identifier);
   }
+
+  async updateIsLogged(id: number, isLogged: boolean) {
+    return await this.prisma.user.update({
+      where: { id },
+      data: { isLogged },
+    });
+  }
 }

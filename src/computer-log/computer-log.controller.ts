@@ -66,6 +66,9 @@ export class ComputerLogController {
       // create log
       const newLog = await this.computerLogService.create(user.id, computerId);
 
+      // update user
+      await this.userService.updateIsLogged(user.id, true);
+
       // update computer logs
       await this.computerLogValidator.updateLatestLog(computerId, newLog.uuid);
       return formatResponse({
@@ -95,6 +98,9 @@ export class ComputerLogController {
       await this.computerLogService.findByIdentifier(identifier);
     if (!computerLog)
       throw new NotFoundException(`Computer Log not found : ${identifier}.`);
+
+    // update user
+    await this.userService.updateIsLogged(user.id, false);
 
     // update computer log
     const updatedComputerLog = await this.computerLogService.endComputerLog(
