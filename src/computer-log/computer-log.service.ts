@@ -64,6 +64,14 @@ export class ComputerLogService {
     }
   }
 
+  async findByUserId(userId: number) {
+    const computerLog = await this.prisma.computerLog.findFirst({
+      where: { userId, endedAt: null, endedBy: null },
+    });
+
+    return computerLog;
+  }
+
   remove(id: number) {
     return `This action removes a #${id} computerLog`;
   }

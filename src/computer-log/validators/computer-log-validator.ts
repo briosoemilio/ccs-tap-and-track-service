@@ -15,6 +15,17 @@ export class ComputerLogValidator {
     if (!user) {
       throw new BadRequestException(`User with id does not exist : ${userId}`);
     }
+
+    if (user.isLogged) {
+      const computerLog = await this.computerLogService.findByUserId(userId);
+      const computer = await this.computerService.findById(
+        computerLog.computerId,
+      );
+      throw new BadRequestException({
+        message: `User is already logged in on another device. Please log out first.`,
+        computer,
+      });
+    }
   };
 
   validateComputer = async (computerId: number) => {
@@ -36,7 +47,9 @@ export class ComputerLogValidator {
     const isComputerInUse = latestLog.endedAt === null;
     const latestUser = await this.userService.findById(latestLog.userId);
     if (isComputerInUse) {
-      throw new BadRequestException(`Computer still in use, please log out first : ${latestUser.name}.`);
+      throw new BadRequestException(
+        `Computer still in use, please log out first : ${latestUser.name}.`,
+      );
     }
   };
 
