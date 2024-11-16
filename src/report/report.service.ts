@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateReportDto } from './dto/create-report.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,9 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 export class ReportService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createReportDto: CreateReportDto) {
+  async create(createReportDto: CreateReportDto, reportedBy: number) {
     try {
-      const data = { uuid: uuidv4(), ...createReportDto };
+      const data = { uuid: uuidv4(), ...createReportDto, reportedBy };
       const report = await this.prisma.report.create({ data });
       return report;
     } catch (err) {
@@ -29,6 +26,19 @@ export class ReportService {
       take: itemsPerPage,
     });
     const totalReports = await this.prisma.report.count();
+    return {
+      data: reports || [],
+      total: totalReports || 0,
+      page,
+      itemsPerPage,
+    };
+  }
+
+  async findByUser(reportedBy: number, page: number, itemsPerPage: number) {
+    const reports = await this.prisma.report.findMany({
+      where: { reportedBy },
+    });
+    const totalReports = reports.length;
     return {
       data: reports || [],
       total: totalReports || 0,

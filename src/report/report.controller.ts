@@ -8,6 +8,7 @@ import {
   HttpStatus,
   UseGuards,
   Query,
+  Request,
 } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -16,6 +17,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ReportValidator } from './validators/report-validator';
 import { ItemService } from 'src/item/item.service';
 import { UserService } from 'src/user/user.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('report')
 export class ReportController {
@@ -24,6 +26,7 @@ export class ReportController {
     private readonly reportService: ReportService,
     private readonly itemService: ItemService,
     private readonly userService: UserService,
+    private readonly jwtService: JwtService,
   ) {
     this.reportValidator = new ReportValidator(
       this.itemService,
@@ -34,20 +37,27 @@ export class ReportController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe())
-  async create(@Body() createReportDto: CreateReportDto) {
-    const { itemId, reportedBy } = createReportDto;
+  async create(@Body() createReportDto: CreateReportDto, @Request() req) {
+    const { itemId } = createReportDto;
+
+    // decode token
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+
+    // get user
+    const user = await this.userService.findByUUID(decodedToken?.uuid);
 
     // Validate Item Id
     await this.reportValidator.validateItem(itemId);
 
     // Validate User Id
-    await this.reportValidator.validateUser(reportedBy);
+    await this.reportValidator.validateUser(user?.id);
 
     // Create Report
-    const report = await this.reportService.create(createReportDto);
+    const report = await this.reportService.create(createReportDto, user?.id);
     return formatResponse({
       statusCode: HttpStatus.CREATED,
-      message: `Report successfully filed by user id : ${reportedBy} | item id: ${itemId}`,
+      message: `Report successfully filed by user id : ${user?.id} | item id: ${itemId}`,
       data: report,
     });
   }
@@ -62,6 +72,34 @@ export class ReportController {
       parseInt(page),
       parseInt(itemsPerPage),
     );
+    return formatResponse({
+      statusCode: HttpStatus.FOUND,
+      message: 'Reports list successfully fetched',
+      data: reports,
+    });
+  }
+
+  @Get('user-reports')
+  @UseGuards(JwtAuthGuard)
+  async getByUserId(
+    @Query('page') page: string = '1',
+    @Query('itemsPerPage') itemsPerPage: string = '10',
+    @Request() req,
+  ) {
+    // decode token
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+
+    // get user
+    const user = await this.userService.findByUUID(decodedToken?.uuid);
+
+    // get reports
+    const reports = await this.reportService.findByUser(
+      user?.id,
+      parseInt(page),
+      parseInt(itemsPerPage),
+    );
+
     return formatResponse({
       statusCode: HttpStatus.FOUND,
       message: 'Reports list successfully fetched',

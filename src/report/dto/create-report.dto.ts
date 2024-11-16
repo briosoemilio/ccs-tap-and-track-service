@@ -5,10 +5,6 @@ export class CreateReportDto {
   @IsNotEmpty()
   itemId: number;
 
-  @IsNumber()
-  @IsNotEmpty()
-  reportedBy: number;
-
   @IsString()
   @IsNotEmpty()
   remarks: string;
