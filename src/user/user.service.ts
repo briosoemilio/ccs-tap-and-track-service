@@ -122,4 +122,11 @@ export class UserService {
       data: { isLogged },
     });
   }
+
+  async updateSection(id: number, yearSection: string) {
+    return await this.prisma.user.update({
+      where: { id },
+      data: { yearSection },
+    });
+  }
 }

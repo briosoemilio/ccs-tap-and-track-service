@@ -37,3 +37,9 @@ export class CreateUserDto {
   @IsOptional()
   idNumber?: string;
 }
+
+export class ChangeSectionDto {
+  @IsNotEmpty()
+  @IsString()
+  section: string;
+}

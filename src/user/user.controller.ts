@@ -12,18 +12,23 @@ import {
   ValidationPipe,
   UsePipes,
   NotFoundException,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { ChangeSectionDto, CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { formatResponse } from 'src/utils/formatResponse';
 import { Role } from '@prisma/client';
 import { isIntegerString } from 'src/utils/isInteger';
 import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Post('/register')
   @UsePipes(new ValidationPipe())
@@ -81,6 +86,27 @@ export class UserController {
       statusCode: HttpStatus.FOUND,
       message: `User successfully fetched: ${identifier}`,
       data: user,
+    });
+  }
+
+  @Patch('/change-section')
+  async changeSection(@Body() createUserDto: ChangeSectionDto, @Request() req) {
+    // decode token
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    // get user
+    const user = await this.userService.findByUUID(decodedToken?.uuid);
+
+    // extract new section
+    const { section: newSection } = createUserDto;
+
+    // update section
+    const newUser = await this.userService.updateSection(user?.id, newSection);
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `User successfully updated: ${user?.uuid}`,
+      data: newUser,
     });
   }
 }
