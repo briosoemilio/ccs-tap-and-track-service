@@ -35,8 +35,11 @@ export class ReportService {
   }
 
   async findByUser(reportedBy: number, page: number, itemsPerPage: number) {
+    const skip = (page - 1) * itemsPerPage;
     const reports = await this.prisma.report.findMany({
       where: { reportedBy },
+      skip: skip,
+      take: itemsPerPage,
     });
     const totalReports = reports.length;
     return {
