@@ -27,10 +27,11 @@ export class LocationController {
     if (location) {
       throw new ConflictException(`Location already exists: ${name}`);
     }
+    const newLocation = await this.locationService.create(createLocationDto);
     return formatResponse({
       statusCode: HttpStatus.OK,
       message: `Location successfully created: ${name}`,
-      data: location,
+      data: newLocation,
     });
   }
 
