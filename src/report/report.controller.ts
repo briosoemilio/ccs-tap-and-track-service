@@ -85,17 +85,27 @@ export class ReportController {
     @Query('page') page: string = '1',
     @Query('itemsPerPage') itemsPerPage: string = '10',
     @Request() req,
+    @Query('userID') userID?: string,
   ) {
-    // decode token
-    const bearerToken = req.headers.authorization?.split(' ')[1];
-    const decodedToken = await this.jwtService.decode(bearerToken);
+    let _userId: number;
 
-    // get user
-    const user = await this.userService.findByUUID(decodedToken?.uuid);
+    if (userID) {
+      _userId = parseInt(userID); // if userID was passed in body
+    } else {
+      // else decode token
+
+      const bearerToken = req.headers.authorization?.split(' ')[1];
+      const decodedToken = await this.jwtService.decode(bearerToken);
+
+      // get user
+      const user = await this.userService.findByUUID(decodedToken?.uuid);
+
+      _userId = user?.id;
+    }
 
     // get reports
     const reports = await this.reportService.findByUser(
-      user?.id,
+      _userId,
       parseInt(page),
       parseInt(itemsPerPage),
     );
