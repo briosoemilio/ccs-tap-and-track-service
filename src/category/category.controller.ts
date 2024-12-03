@@ -27,10 +27,12 @@ export class CategoryController {
     if (category) {
       throw new ConflictException(`Category already exists: ${name}`);
     }
+    const newCategory = await this.categoryService.create(createCategoryDto);
+
     return formatResponse({
       statusCode: HttpStatus.CREATED,
       message: 'Category successfully created.',
-      data: category,
+      data: newCategory,
     });
   }
 
