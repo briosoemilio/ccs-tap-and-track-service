@@ -19,6 +19,7 @@ import {
   ChangeItemStatusDto,
 } from './dto/update-item.dto';
 import { formatResponse } from 'src/utils/formatResponse';
+import { ItemStatus } from '@prisma/client';
 
 @Controller('items')
 export class ItemController {
@@ -48,10 +49,16 @@ export class ItemController {
   async findAll(
     @Query('page') page: string = '1',
     @Query('itemsPerPage') itemsPerPage: string = '10',
+    @Query('categoryName') categoryName: string = '',
+    @Query('locationName') locationName: string = '',
+    @Query('status') status: string = '',
   ) {
     const items = await this.itemService.findAll(
       parseInt(page),
       parseInt(itemsPerPage),
+      categoryName,
+      locationName,
+      status as ItemStatus,
     );
     return formatResponse({
       statusCode: HttpStatus.OK,

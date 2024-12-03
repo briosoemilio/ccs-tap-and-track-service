@@ -19,11 +19,26 @@ export class ItemService {
     return newItem;
   }
 
-  async findAll(page: number, itemsPerPage: number) {
+  async findAll(
+    page: number,
+    itemsPerPage: number,
+    categoryName: string,
+    locationName: string,
+    status: ItemStatus,
+  ) {
     const skip = (page - 1) * itemsPerPage;
+    const mainCategories = ['MOUSE', 'KEYBOARD', 'MONITOR', 'SYSTEM_UNIT'];
+
     const allItems: Item[] = await this.prisma.item.findMany({
       skip: skip,
       take: itemsPerPage,
+      where: {
+        ...(categoryName === 'OTHERS'
+          ? { categoryName: { notIn: mainCategories } }
+          : categoryName && { categoryName }),
+        ...(locationName && { locationName }),
+        ...(status && { status }),
+      },
     });
     const totalItems = await this.prisma.item.count();
     return {
