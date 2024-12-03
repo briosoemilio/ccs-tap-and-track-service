@@ -75,4 +75,24 @@ export class ComputerLogService {
   remove(id: number) {
     return `This action removes a #${id} computerLog`;
   }
+
+  async findByComputerIdentifier(
+    page: number,
+    itemsPerPage: number,
+    computerId: number,
+  ) {
+    const skip = (page - 1) * itemsPerPage;
+    const logs = await this.prisma.computerLog.findMany({
+      skip: skip,
+      take: itemsPerPage,
+      where: { computerId },
+    });
+    const totalLogs = await this.prisma.computerLog.count();
+    return {
+      data: logs || [],
+      total: totalLogs || 0,
+      page,
+      itemsPerPage,
+    };
+  }
 }

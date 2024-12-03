@@ -147,11 +147,25 @@ export class ComputerLogController {
   async findAll(
     @Query('page') page: string = '1',
     @Query('itemsPerPage') itemsPerPage: string = '10',
+    @Query('computerIdentifier') computerIdentifier: string = '',
   ) {
-    const computerLogs = await this.computerLogService.findAll(
-      parseInt(page),
-      parseInt(itemsPerPage),
-    );
+    let computerLogs;
+
+    if (computerIdentifier) {
+      const { id } =
+        await this.computerService.findByIdentifier(computerIdentifier);
+      computerLogs = await this.computerLogService.findByComputerIdentifier(
+        parseInt(page),
+        parseInt(itemsPerPage),
+        id,
+      );
+    } else {
+      computerLogs = await this.computerLogService.findAll(
+        parseInt(page),
+        parseInt(itemsPerPage),
+      );
+    }
+
     return formatResponse({
       statusCode: HttpStatus.FOUND,
       message: 'Computer Logs list successfully fetched',
