@@ -148,6 +148,7 @@ export class ComputerLogController {
     @Query('page') page: string = '1',
     @Query('itemsPerPage') itemsPerPage: string = '10',
     @Query('computerIdentifier') computerIdentifier: string = '',
+    @Query('userIdentifier') userIdentifier: string = '',
   ) {
     let computerLogs;
 
@@ -155,6 +156,13 @@ export class ComputerLogController {
       const { id } =
         await this.computerService.findByIdentifier(computerIdentifier);
       computerLogs = await this.computerLogService.findByComputerIdentifier(
+        parseInt(page),
+        parseInt(itemsPerPage),
+        id,
+      );
+    } else if (userIdentifier) {
+      const { id } = await this.userService.findByIdentifier(userIdentifier);
+      computerLogs = await this.computerLogService.findByUserIdentifier(
         parseInt(page),
         parseInt(itemsPerPage),
         id,
