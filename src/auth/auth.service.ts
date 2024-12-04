@@ -93,6 +93,9 @@ export class AuthService {
     const currMetadata = JSON.parse(user?.metadata) || ({} as any);
 
     const currKeys = currMetadata?.keys || [];
+    if (currKeys.includes(newKey)) {
+      throw new BadRequestException('This key is already added.');
+    }
 
     const updatedKeys = [...currKeys, newKey];
     const updatedMetadata = { ...currMetadata, keys: updatedKeys };
