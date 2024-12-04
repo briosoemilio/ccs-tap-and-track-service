@@ -129,4 +129,11 @@ export class UserService {
       data: { yearSection },
     });
   }
+
+  async updateMetadata(id: number, metadata: any) {
+    return await this.prisma.user.update({
+      where: { id },
+      data: { metadata },
+    });
+  }
 }
