@@ -1,5 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum, IsEmail } from 'class-validator';
-import { FloorType } from '@prisma/client';
+import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
 
 export class CreateAuthDto {
   @IsEmail()

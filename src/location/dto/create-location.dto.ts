@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 import { FloorType } from '@prisma/client';
 
 export class CreateLocationDto {
@@ -6,7 +6,6 @@ export class CreateLocationDto {
   @IsNotEmpty()
   name: string;
 
-  @IsEnum(FloorType)
   @IsNotEmpty()
   floor: FloorType;
 }
