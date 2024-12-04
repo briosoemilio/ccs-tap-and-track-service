@@ -113,6 +113,7 @@ model User {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   ComputerLog ComputerLog[]
+  metadata    String        @default("{}")
 }
 
 model Report {
