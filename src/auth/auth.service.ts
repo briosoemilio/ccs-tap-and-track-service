@@ -108,4 +108,24 @@ export class AuthService {
 
     return { message: 'Admin key added successfully.' };
   }
+
+  async checkAdmin(id: string) {
+    if (!id) {
+      throw new BadRequestException('ID must not be empty.');
+    }
+
+    const adminEmail = process.env.ADMIN_USER;
+    const user = await this.userService.findByEmail(adminEmail);
+    if (!user) {
+      throw new BadRequestException('Admin user not found.');
+    }
+
+    const currMetadata = JSON.parse(user?.metadata) || ({} as any);
+    const currKeys = currMetadata?.keys || [];
+    if (currKeys.includes(id)) {
+      return { isAdmin: true, message: 'Admin found.' };
+    } else {
+      return { isAdmin: false, message: 'Admin not found.' };
+    }
+  }
 }

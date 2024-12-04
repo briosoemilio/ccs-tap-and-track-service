@@ -8,6 +8,8 @@ import {
   HttpStatus,
   UsePipes,
   ValidationPipe,
+  Query,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
@@ -53,6 +55,19 @@ export class AuthController {
     return formatResponse({
       statusCode: HttpStatus.OK,
       message: 'Successfully added new admin',
+      data: { res },
+    });
+  }
+
+  @UseGuards(LocalStrategy)
+  @Get('/checkAdmin')
+  @UsePipes(new ValidationPipe())
+  @Bind(Request())
+  async checkAdmin(@Query('id') id: string) {
+    const res = await this.authService.checkAdmin(id);
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: 'Successfully checked if card is valid.',
       data: { res },
     });
   }
