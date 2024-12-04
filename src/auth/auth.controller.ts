@@ -30,4 +30,17 @@ export class AuthController {
       data: { token },
     });
   }
+
+  @UseGuards(LocalStrategy)
+  @Post('/loginAdmin')
+  @UsePipes(new ValidationPipe())
+  @Bind(Request())
+  async loginAdmin(@Body() loginAdminDto: { password: string }) {
+    const token = await this.authService.loginAdmin(loginAdminDto);
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: 'Successfully logged in',
+      data: { token },
+    });
+  }
 }

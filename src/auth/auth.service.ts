@@ -6,7 +6,7 @@ import {
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { Payload } from './types';
 
@@ -36,6 +36,29 @@ export class AuthService {
       createAuthDto.email,
       createAuthDto.password,
     );
+    if (user?.role === Role.ADMIN) {
+      throw new UnauthorizedException('Account unauthorized.');
+    }
+    const payload: Payload = {
+      name: user.name,
+      uuid: user.uuid,
+      yearSection: user?.yearSection || '',
+      idNumber: user?.idNumber || '',
+      email: user.email,
+      role: user.role,
+    };
+
+    const token = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_SECRET,
+    });
+    return token;
+  }
+
+  async loginAdmin(loginAdminDto: { password: string }) {
+    const adminEmail = process.env.ADMIN_USER;
+
+    const user = await this.validateUser(adminEmail, loginAdminDto.password);
+
     const payload: Payload = {
       name: user.name,
       uuid: user.uuid,
