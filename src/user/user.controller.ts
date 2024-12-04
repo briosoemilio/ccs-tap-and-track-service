@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   HttpStatus,
   Query,
   InternalServerErrorException,
@@ -13,15 +12,15 @@ import {
   UsePipes,
   NotFoundException,
   Request,
+  UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ChangeSectionDto, CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { formatResponse } from 'src/utils/formatResponse';
 import { Role } from '@prisma/client';
-import { isIntegerString } from 'src/utils/isInteger';
-import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Controller('users')
 export class UserController {
@@ -94,6 +93,7 @@ export class UserController {
     // decode token
     const bearerToken = req.headers.authorization?.split(' ')[1];
     const decodedToken = await this.jwtService.decode(bearerToken);
+
     // get user
     const user = await this.userService.findByUUID(decodedToken?.uuid);
 
@@ -102,6 +102,46 @@ export class UserController {
 
     // update section
     const newUser = await this.userService.updateSection(user?.id, newSection);
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `User successfully updated: ${user?.uuid}`,
+      data: newUser,
+    });
+  }
+
+  @Patch('change-password')
+  async changePassword(
+    @Body() changePasswordDto: { oldPassword: string; newPassword: string },
+    @Request() req,
+  ) {
+    // decode token
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+
+    // get user
+    const user = await this.userService.findByUUID(decodedToken?.uuid);
+
+    // extract
+    const { oldPassword, newPassword } = changePasswordDto;
+    if (oldPassword === newPassword) {
+      throw new BadRequestException(
+        'New password must be different from old password.',
+      );
+    }
+
+    // validate old password
+    const isPassCorrect = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isPassCorrect) {
+      throw new UnauthorizedException('Wrong password');
+    }
+
+    // update password
+    const newUser = await this.userService.updatePassword(
+      user?.id,
+      newPassword,
+    );
 
     return formatResponse({
       statusCode: HttpStatus.OK,
