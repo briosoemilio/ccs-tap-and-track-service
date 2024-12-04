@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -72,5 +73,36 @@ export class AuthService {
       secret: process.env.JWT_SECRET,
     });
     return token;
+  }
+
+  async addNewAdmin(addNewAdminDTO: { id: string }) {
+    const { id } = addNewAdminDTO;
+
+    if (!id) {
+      throw new BadRequestException('ID must not be empty.');
+    }
+
+    const adminEmail = process.env.ADMIN_USER;
+    const user = await this.userService.findByEmail(adminEmail);
+
+    if (!user) {
+      throw new BadRequestException('Admin user not found.');
+    }
+
+    const newKey = id;
+    const currMetadata = JSON.parse(user?.metadata) || ({} as any);
+
+    const currKeys = currMetadata?.keys || [];
+
+    const updatedKeys = [...currKeys, newKey];
+    const updatedMetadata = { ...currMetadata, keys: updatedKeys };
+
+    // update user metadata
+    await this.userService.updateMetadata(
+      user?.id,
+      JSON.stringify(updatedMetadata),
+    );
+
+    return { message: 'Admin key added successfully.' };
   }
 }

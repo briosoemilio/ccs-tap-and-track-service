@@ -43,4 +43,17 @@ export class AuthController {
       data: { token },
     });
   }
+
+  @UseGuards(LocalStrategy)
+  @Post('/addAdmin')
+  @UsePipes(new ValidationPipe())
+  @Bind(Request())
+  async addNewAdmin(@Body() addNewAdminDTO: { id: string }) {
+    const res = await this.authService.addNewAdmin(addNewAdminDTO);
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: 'Successfully added new admin',
+      data: { res },
+    });
+  }
 }
