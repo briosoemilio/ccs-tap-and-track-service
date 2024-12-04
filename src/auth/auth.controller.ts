@@ -68,7 +68,7 @@ export class AuthController {
     return formatResponse({
       statusCode: HttpStatus.OK,
       message: 'Successfully checked if card is valid.',
-      data: { res },
+      data: { ...res },
     });
   }
 }
