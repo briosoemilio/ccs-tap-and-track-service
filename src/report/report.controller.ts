@@ -116,4 +116,21 @@ export class ReportController {
       data: reports,
     });
   }
+
+  @Get('report-summary')
+  async getReportSummary(
+    @Query('startDate') startDate: string = '1',
+    @Query('endDate') endDate: string = '10',
+  ) {
+    const summary = await this.reportService.generateSummary(
+      startDate,
+      endDate,
+    );
+
+    return formatResponse({
+      statusCode: HttpStatus.FOUND,
+      message: 'Report summary successfully generated:',
+      data: summary,
+    });
+  }
 }
