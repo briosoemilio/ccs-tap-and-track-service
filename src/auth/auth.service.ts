@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Role, User } from '@prisma/client';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { Payload } from './types';
+import { totp } from 'otplib';
 
 @Injectable()
 export class AuthService {
@@ -127,5 +128,37 @@ export class AuthService {
     } else {
       return { isAdmin: false, message: 'Admin not found.' };
     }
+  }
+
+  async createOTP(email: string, type: string) {
+    // Find the user by email
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException(
+        `User with email address not found: ${email}`,
+      );
+    }
+
+    // Generate a new OTP
+    const token = totp.generate(process.env.OTP_SECRET);
+
+    // extract existing otp
+    let { otp, ...rest } = JSON.parse(user.metadata);
+    if (!Array.isArray(otp)) {
+      otp = [];
+    }
+    const existingOtpIndex = otp.findIndex((item) => item.type === type);
+    if (existingOtpIndex > -1) {
+      otp[existingOtpIndex] = { code: token, type };
+    } else {
+      otp.push({ code: token, type });
+    }
+    const newMetadata = { ...rest, otp };
+
+    // Update the user metadata in the database
+    await this.userService.updateMetadata(user.id, JSON.stringify(newMetadata));
+
+    // Return the generated OTP
+    return token;
   }
 }

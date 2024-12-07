@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ReportModule } from './report/report.module';
 import { ComputerLogModule } from './computer-log/computer-log.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -20,6 +21,20 @@ import { ComputerLogModule } from './computer-log/computer-log.module';
     AuthModule,
     ReportModule,
     ComputerLogModule,
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.EMAIL_HOST,
+        port: parseInt(process.env.EMAIL_PORT, 10),
+        secure: false,
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      },
+      defaults: {
+        from: 'No Reply: <ccs-tap-and-track-no-reply@mail.com>',
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

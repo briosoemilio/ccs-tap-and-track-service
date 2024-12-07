@@ -21,12 +21,16 @@ import { formatResponse } from 'src/utils/formatResponse';
 import { Role } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { MailerService } from '@nestjs-modules/mailer';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('users')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailerService,
+    private readonly authService: AuthService,
   ) {}
 
   @Post('/register')
@@ -136,6 +140,52 @@ export class UserController {
     if (!isPassCorrect) {
       throw new UnauthorizedException('Wrong password');
     }
+
+    // update password
+    const newUser = await this.userService.updatePassword(
+      user?.id,
+      newPassword,
+    );
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `User successfully updated: ${user?.uuid}`,
+      data: newUser,
+    });
+  }
+
+  @Patch('/otp/forgot-password')
+  async sendOtpForgotPassword(@Body() request: { email: string }) {
+    const { email } = request;
+
+    const OTP = await this.authService.createOTP(email, 'FORGOT_PASSWORD');
+
+    const message = `We received a request to reset the password for your account on CCS Tap And Track. To ensure your security, please use the One-Time Password (OTP) below to reset your password:\n\n**Your OTP: ${OTP} **\n\nPlease note:\n- The OTP is valid for the next 10 minutes.\n- If you did not request a password reset, please ignore this email or contact our support team for assistance.`;
+
+    await this.mailService.sendMail({
+      to: email,
+      subject: `CCS Tap And Track: FORGOT PASSWORD`,
+      text: message,
+    });
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `Successfully sent OTP: ${email}`,
+      data: {
+        email,
+        otp: OTP,
+      },
+    });
+  }
+
+  @Patch('reset-password')
+  async resetPassword(
+    @Body() resetPasswordDto: { email: string; newPassword: string },
+  ) {
+    const { email, newPassword } = resetPasswordDto;
+
+    // get user
+    const user = await this.userService.findByEmail(email);
 
     // update password
     const newUser = await this.userService.updatePassword(
