@@ -66,7 +66,11 @@ export class UserService {
       skip,
       take: itemsPerPage,
     });
-    const total = userByRole.length;
+
+    const total = await this.prisma.user.count({
+      where: { role },
+    });
+
     return {
       data: userByRole || [],
       total,
