@@ -147,7 +147,15 @@ const createSeedUsers = async () => {
     role: Role.ADMIN,
   };
 
-  const users = [...students, ...professors, admin];
+  const superAdmin = {
+    uuid: uuidv4(),
+    email: 'admin@mail.com',
+    password: await bcrypt.hash('password1', saltOrRounds),
+    name: 'Super Admin Prime',
+    role: Role.ADMIN,
+  };
+
+  const users = [...students, ...professors, admin, superAdmin];
 
   for (const user of users) {
     await prisma.user.create({

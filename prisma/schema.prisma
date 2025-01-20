@@ -96,6 +96,7 @@ model Computer {
 enum Role {
   STUDENT
   PROF
+  SUPER_ADMIN
   ADMIN
 }
 
