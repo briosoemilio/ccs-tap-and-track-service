@@ -81,7 +81,26 @@ export class UserController {
   }
 
   @Get(':identifier')
-  async findById(@Param('identifier') identifier: string) {
+  async findById(
+    @Param('identifier') identifier: string,
+    @Query('page') page: string = '1',
+    @Query('itemsPerPage') itemsPerPage: string = '10',
+  ) {
+    // Check if the identifier matches a Role enum value
+    if (Object.values(Role).includes(identifier as Role)) {
+      const users = await this.userService.findByRole(
+        identifier as Role,
+        parseInt(page, 10),
+        parseInt(itemsPerPage, 10),
+      );
+
+      return formatResponse({
+        statusCode: HttpStatus.FOUND,
+        message: `Users with role: ${identifier} successfully fetched`,
+        data: users,
+      });
+    }
+
     const user = await this.userService.findByIdentifier(identifier);
     if (!user) throw new NotFoundException(`User ID not found: ${identifier}`);
 
