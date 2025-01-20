@@ -152,7 +152,7 @@ const createSeedUsers = async () => {
     email: 'admin@mail.com',
     password: await bcrypt.hash('password1', saltOrRounds),
     name: 'Super Admin Prime',
-    role: Role.ADMIN,
+    role: Role.SUPER_ADMIN,
   };
 
   const users = [...students, ...professors, admin, superAdmin];
