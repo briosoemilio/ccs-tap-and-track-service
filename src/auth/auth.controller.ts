@@ -47,6 +47,19 @@ export class AuthController {
   }
 
   @UseGuards(LocalStrategy)
+  @Post('/loginSuperAdmin')
+  @UsePipes(new ValidationPipe())
+  @Bind(Request())
+  async loginSuperAdmin(@Body() createAuthDto: CreateAuthDto) {
+    const token = await this.authService.loginSuperAdmin(createAuthDto);
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: 'Successfully logged in',
+      data: { token },
+    });
+  }
+
+  @UseGuards(LocalStrategy)
   @Post('/addAdmin')
   @UsePipes(new ValidationPipe())
   @Bind(Request())

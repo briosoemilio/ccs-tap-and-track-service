@@ -38,7 +38,7 @@ export class AuthService {
       createAuthDto.email,
       createAuthDto.password,
     );
-    if (user?.role === Role.ADMIN) {
+    if (user?.role === Role.ADMIN || user?.role === Role.SUPER_ADMIN) {
       throw new UnauthorizedException('Account unauthorized.');
     }
     const payload: Payload = {
@@ -60,6 +60,34 @@ export class AuthService {
     const adminEmail = process.env.ADMIN_USER;
 
     const user = await this.validateUser(adminEmail, loginAdminDto.password);
+    if (user?.role !== Role.ADMIN) {
+      throw new UnauthorizedException('Account unauthorized.');
+    }
+
+    const payload: Payload = {
+      name: user.name,
+      uuid: user.uuid,
+      yearSection: user?.yearSection || '',
+      idNumber: user?.idNumber || '',
+      email: user.email,
+      role: user.role,
+    };
+
+    const token = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_SECRET,
+    });
+    return token;
+  }
+
+  async loginSuperAdmin(loginAdminDto: { email: string; password: string }) {
+    const user = await this.validateUser(
+      loginAdminDto.email,
+      loginAdminDto.password,
+    );
+
+    if (user?.role !== Role.SUPER_ADMIN) {
+      throw new UnauthorizedException('Account unauthorized.');
+    }
 
     const payload: Payload = {
       name: user.name,
