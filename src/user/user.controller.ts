@@ -23,10 +23,13 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { AuthService } from 'src/auth/auth.service';
+import { generate } from 'generate-password';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Controller('users')
 export class UserController {
   constructor(
+    private readonly prisma: PrismaService,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailerService,
@@ -37,11 +40,30 @@ export class UserController {
   @UsePipes(new ValidationPipe())
   async create(@Body() createUserDto: CreateUserDto) {
     try {
-      const user = await this.userService.create(createUserDto);
-      return formatResponse({
-        statusCode: HttpStatus.CREATED,
-        message: 'User successfully registered',
-        data: user,
+      return await this.prisma.$transaction(async () => {
+        const { email, password } = createUserDto;
+        const _password = password || generate({ length: 10, numbers: true });
+        const dto = { password: _password, ...createUserDto };
+
+        const user = await this.userService.create(dto);
+
+        const emailPw = async () => {
+          if (password) return;
+          const message = `Hello welcome to CCS Tap And Track. To ensure your security, please use the Auto Generated Password below to access your account:\n\n**Your Password: ${_password} **\n\nPlease note:\n- The Once inside the app, don't forget to change your password immediately thank you!`;
+
+          await this.mailService.sendMail({
+            to: email,
+            subject: `CCS Tap And Track: NEW ACCOUNT`,
+            text: message,
+          });
+        };
+        await emailPw();
+
+        return formatResponse({
+          statusCode: HttpStatus.CREATED,
+          message: 'User successfully registered',
+          data: user,
+        });
       });
     } catch (err) {
       throw new InternalServerErrorException(
