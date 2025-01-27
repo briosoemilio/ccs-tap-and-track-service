@@ -25,6 +25,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { AuthService } from 'src/auth/auth.service';
 import { generate } from 'generate-password';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -238,6 +239,25 @@ export class UserController {
       statusCode: HttpStatus.OK,
       message: `User successfully updated: ${user?.uuid}`,
       data: newUser,
+    });
+  }
+
+  @Patch('update-user/:identifier')
+  async updateUser(
+    @Param('identifier') identifier: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = await this.userService.findByIdentifier(identifier);
+
+    const updatedUser = await this.userService.updateUser(
+      user?.id,
+      updateUserDto,
+    );
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `User successfully updated: ${user?.uuid}`,
+      data: updatedUser,
     });
   }
 }

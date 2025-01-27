@@ -147,4 +147,29 @@ export class UserService {
       data: { password: hashedPassword },
     });
   }
+
+  async updateUser(id: number, updateUserDto: UpdateUserDto) {
+    // CHECK EMAIL
+    if (updateUserDto?.email) {
+      const user = await this.findByEmail(updateUserDto?.email);
+      if (user && user?.id !== id)
+        throw new BadRequestException(
+          `Email already used : ${updateUserDto?.email}`,
+        );
+    }
+
+    // CHECK ID NUMBER
+    if (updateUserDto?.idNumber) {
+      const user = await this.findByIDNumber(updateUserDto?.idNumber);
+      if (user && user?.id !== id)
+        throw new BadRequestException(
+          `ID number already used : ${updateUserDto?.idNumber}`,
+        );
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
+  }
 }
