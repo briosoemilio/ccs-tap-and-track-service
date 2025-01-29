@@ -269,4 +269,39 @@ export class UserController {
       data: updatedUser,
     });
   }
+
+  @Patch('override-password/:identifier')
+  async overridePassword(
+    @Param('identifier') identifier: string,
+    @Body() overridePasswordDto: { password: string; confirmPassword: string },
+    @Request() req,
+  ) {
+    // check if super admin
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    const role = decodedToken?.role;
+    if (role !== Role.SUPER_ADMIN) {
+      throw new BadRequestException(
+        'Unauthorized. Override is only available to SUPER ADMIN accounts',
+      );
+    }
+
+    // Check password:
+    const { password, confirmPassword } = overridePasswordDto;
+    if (password !== confirmPassword) {
+      throw new BadRequestException('Password must be the same.');
+    }
+
+    const adminUser = await this.userService.findByIdentifier(identifier);
+    const updatedUser = await this.userService.updatePassword(
+      adminUser?.id,
+      password,
+    );
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `Successfully changed user password: ${adminUser?.uuid}`,
+      data: updatedUser,
+    });
+  }
 }
