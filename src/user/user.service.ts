@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { Role } from '@prisma/client';
 import { isIntegerString } from 'src/utils/isInteger';
 import { isIdentifierUUID } from 'src/utils/isIdentifierUUID';
+import { isIdentifierEmail } from 'src/utils/isIdentifierEmail';
 
 @Injectable()
 export class UserService {
@@ -112,6 +113,10 @@ export class UserService {
     // if identifier is uuid
     if (isIdentifierUUID(identifier)) {
       return await this.findByUUID(identifier);
+    }
+
+    if (isIdentifierEmail(identifier)) {
+      return await this.findByEmail(identifier);
     }
 
     // if identifier is id number
