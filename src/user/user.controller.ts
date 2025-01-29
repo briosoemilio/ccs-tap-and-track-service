@@ -50,7 +50,11 @@ export class UserController {
 
         const emailPw = async () => {
           if (password) return;
-          const message = `Hello welcome to CCS Tap And Track. To ensure your security, please use the Auto Generated Password below to access your account:\n\n**Your Password: ${_password} **\n\nPlease note:\n- The Once inside the app, don't forget to change your password immediately thank you!`;
+          const message = `Congratulations! You are now officially enrolled and part of Eulogio 'Amang' Rodrigues Institute of Science and Technology or EARIST Community. \n\n 
+          
+          Your CCS Tap And Track username is: **${email}** and your temporary password is: **${_password}** \n\n
+          
+          **Please note:** - Once inside the app, don't forget to change your password immediately and complete NFC flow.`;
 
           await this.mailService.sendMail({
             to: email,
