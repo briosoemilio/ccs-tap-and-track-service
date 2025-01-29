@@ -55,7 +55,9 @@ export class UserController {
           if (password) return;
           const message = `Congratulations! You are now officially enrolled and part of Eulogio 'Amang' Rodrigues Institute of Science and Technology or EARIST Community. \n\n 
           
-          Your CCS Tap And Track username is: **${email}** and your temporary password is: **${_password}** \n\n
+          Your CCS Tap And Track Login Credentials\n 
+          username: ${email}\n
+          password: ${_password} \n\n
           
           **Please note:** - Once inside the app, don't forget to change your password immediately and complete NFC flow.`;
 
