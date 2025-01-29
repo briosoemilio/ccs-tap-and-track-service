@@ -84,6 +84,7 @@ export class UserService {
   }
 
   async findByIdNumber(idNumber: string) {
+    if (!idNumber) return null;
     const userByIdNumber = await this.prisma.user.findFirst({
       where: { idNumber },
     });
