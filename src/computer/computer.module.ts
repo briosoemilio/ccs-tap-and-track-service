@@ -5,6 +5,7 @@ import { ItemService } from 'src/item/item.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LocationService } from 'src/location/location.service';
 import { ComputerLogService } from 'src/computer-log/computer-log.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   controllers: [ComputerController],
@@ -14,6 +15,7 @@ import { ComputerLogService } from 'src/computer-log/computer-log.service';
     ComputerService,
     LocationService,
     ComputerLogService,
+    JwtService,
   ],
 })
 export class ComputerModule {}

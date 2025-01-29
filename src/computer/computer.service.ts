@@ -113,4 +113,18 @@ export class ComputerService {
 
     return { inRepair, inRepairComponents };
   }
+
+  async archiveComputer(id: number) {
+    return this.prisma.computer.update({
+      where: { id },
+      data: { isArchived: true },
+    });
+  }
+
+  async unarchiveComputer(id: number) {
+    return this.prisma.computer.update({
+      where: { id },
+      data: { isArchived: false },
+    });
+  }
 }

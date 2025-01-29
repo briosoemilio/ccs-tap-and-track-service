@@ -11,6 +11,7 @@ import {
   BadRequestException,
   UsePipes,
   ValidationPipe,
+  Request,
 } from '@nestjs/common';
 import { ComputerService } from './computer.service';
 import { CreateComputerDto } from './dto/create-computer.dto';
@@ -21,7 +22,8 @@ import { ItemService } from 'src/item/item.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LocationService } from 'src/location/location.service';
 import { ComputerLogService } from 'src/computer-log/computer-log.service';
-import { ItemStatus } from '@prisma/client';
+import { ItemStatus, Role } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('computers')
 export class ComputerController {
@@ -32,6 +34,7 @@ export class ComputerController {
     private readonly itemService: ItemService,
     private readonly locationService: LocationService,
     private readonly computerLogService: ComputerLogService,
+    private readonly jwtService: JwtService,
   ) {
     this.computerValidator = new ComputerValidator(
       this.itemService,
@@ -186,6 +189,66 @@ export class ComputerController {
         message: `Computer: ${id} successfully changed location : ${locationName}`,
         data: relocatedComputer,
       });
+    });
+  }
+
+  @Patch('/archive/:identifier')
+  async archiveItem(@Param('identifier') identifier: string, @Request() req) {
+    // check if admin
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    const role = decodedToken?.role;
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(role)) {
+      throw new BadRequestException(
+        'Unauthorized. Archive is only available to ADMIN accounts',
+      );
+    }
+
+    const computer = await this.computerService.findByIdentifier(identifier);
+    if (!computer) {
+      throw new BadRequestException(
+        `Bad Request. Computer not found with identifier: ${identifier}`,
+      );
+    }
+
+    const updatedComputer = await this.computerService.archiveComputer(
+      computer?.id,
+    );
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: 'Computer archived successfully',
+      data: updatedComputer,
+    });
+  }
+
+  @Patch('/unarchive/:identifier')
+  async unarchiveItem(@Param('identifier') identifier: string, @Request() req) {
+    // check if admin
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    const role = decodedToken?.role;
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(role)) {
+      throw new BadRequestException(
+        'Unauthorized. Unarchive is only available to ADMIN accounts',
+      );
+    }
+
+    const computer = await this.computerService.findByIdentifier(identifier);
+    if (!computer) {
+      throw new BadRequestException(
+        `Bad Request. Computer not found with identifier: ${identifier}`,
+      );
+    }
+
+    const updatedComputer = await this.computerService.unarchiveComputer(
+      computer?.id,
+    );
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: 'Computer unarchived successfully',
+      data: updatedComputer,
     });
   }
 }
