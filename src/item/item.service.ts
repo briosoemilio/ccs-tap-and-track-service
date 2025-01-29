@@ -149,7 +149,21 @@ export class ItemService {
       return await this.findByUUID(identifier);
     }
 
-    // if identifier is id number
+    // if identifier is iteme name
     return await this.findByName(identifier);
+  }
+
+  async archiveItem(id: number) {
+    return this.prisma.item.update({
+      where: { id },
+      data: { isArchived: true },
+    });
+  }
+
+  async unarchiveItem(id: number) {
+    return this.prisma.item.update({
+      where: { id },
+      data: { isArchived: false },
+    });
   }
 }

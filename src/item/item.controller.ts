@@ -11,6 +11,8 @@ import {
   UsePipes,
   ValidationPipe,
   Query,
+  Request,
+  BadRequestException,
 } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { CreateItemDto } from './dto/create-item.dto';
@@ -19,11 +21,15 @@ import {
   ChangeItemStatusDto,
 } from './dto/update-item.dto';
 import { formatResponse } from 'src/utils/formatResponse';
-import { ItemStatus } from '@prisma/client';
+import { ItemStatus, Role } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('items')
 export class ItemController {
-  constructor(private readonly itemService: ItemService) {}
+  constructor(
+    private readonly itemService: ItemService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Post()
   @UsePipes(new ValidationPipe())
@@ -130,6 +136,62 @@ export class ItemController {
       statusCode: HttpStatus.OK,
       message: 'Item changed status successfully',
       data: newItem,
+    });
+  }
+
+  @Patch('/archive/:identifier')
+  async archiveItem(@Param('identifier') identifier: string, @Request() req) {
+    // check if admin
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    const role = decodedToken?.role;
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(role)) {
+      throw new BadRequestException(
+        'Unauthorized. Archive is only available to ADMIN accounts',
+      );
+    }
+
+    const item = await this.itemService.findByIdentifier(identifier);
+    if (!item) {
+      throw new BadRequestException(
+        `Bad Request. Item not found with identifier: ${identifier}`,
+      );
+    }
+
+    const updatedItem = await this.itemService.archiveItem(item?.id);
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: 'Item archived successfully',
+      data: updatedItem,
+    });
+  }
+
+  @Patch('/unarchive/:identifier')
+  async unarchiveItem(@Param('identifier') identifier: string, @Request() req) {
+    // check if admin
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    const role = decodedToken?.role;
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(role)) {
+      throw new BadRequestException(
+        'Unauthorized. Unarchive is only available to ADMIN accounts',
+      );
+    }
+
+    const item = await this.itemService.findByIdentifier(identifier);
+    if (!item) {
+      throw new BadRequestException(
+        `Bad Request. Item not found with identifier: ${identifier}`,
+      );
+    }
+
+    const updatedItem = await this.itemService.unarchiveItem(item?.id);
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: 'Item unarchived successfully',
+      data: updatedItem,
     });
   }
 }
