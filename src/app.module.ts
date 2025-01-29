@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { ReportModule } from './report/report.module';
 import { ComputerLogModule } from './computer-log/computer-log.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     AuthModule,
     ReportModule,
     ComputerLogModule,
+    MaintenanceModule,
     MailerModule.forRoot({
       transport: {
         host: process.env.EMAIL_HOST,
