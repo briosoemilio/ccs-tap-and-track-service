@@ -44,7 +44,10 @@ export class UserController {
       return await this.prisma.$transaction(async () => {
         const { email, password } = createUserDto;
         const _password = password || generate({ length: 10, numbers: true });
-        const dto = { password: _password, ...createUserDto };
+        const metadata = password
+          ? '{}'
+          : JSON.stringify({ firstPw: _password });
+        const dto = { password: _password, metadata, ...createUserDto };
 
         const user = await this.userService.create(dto);
 
