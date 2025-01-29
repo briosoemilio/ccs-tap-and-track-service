@@ -53,7 +53,7 @@ export class UserController {
 
         const emailPw = async () => {
           if (password) return;
-          const message = `Congratulations! You are now officially enrolled and part of Eulogio 'Amang' Rodrigues Institute of Science and Technology or EARIST Community. \n\n 
+          const message = `Congratulations! You are now officially enrolled and part of Eulogio 'Amang' Rodriguez Institute of Science and Technology or EARIST Community. \n\n 
           
           Your CCS Tap And Track Login Credentials\n 
           username: ${email}\n
