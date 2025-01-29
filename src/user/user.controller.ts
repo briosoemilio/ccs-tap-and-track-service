@@ -59,7 +59,7 @@ export class UserController {
           username: ${email}\n
           password: ${_password} \n\n
           
-          **Please note:** - Once inside the app, don't forget to change your password immediately and complete NFC flow.`;
+          NOTE: Once inside the app, don't forget to change your password immediately and complete NFC flow.`;
 
           await this.mailService.sendMail({
             to: email,
