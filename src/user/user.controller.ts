@@ -304,4 +304,54 @@ export class UserController {
       data: updatedUser,
     });
   }
+
+  @Patch('archive-account/:identifier')
+  async archiveAccount(
+    @Param('identifier') identifier: string,
+    @Request() req,
+  ) {
+    // check if admin
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    const role = decodedToken?.role;
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(role)) {
+      throw new BadRequestException(
+        'Unauthorized. Override is only available to ADMIN accounts',
+      );
+    }
+
+    const user = await this.userService.findByIdentifier(identifier);
+    const updatedUser = await this.userService.archiveUser(user?.id);
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `Successfully archived user: ${updatedUser?.uuid}`,
+      data: updatedUser,
+    });
+  }
+
+  @Patch('unarchive-account/:identifier')
+  async unarchiveAccount(
+    @Param('identifier') identifier: string,
+    @Request() req,
+  ) {
+    // check if admin
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    const role = decodedToken?.role;
+    if (![Role.ADMIN, Role.SUPER_ADMIN].includes(role)) {
+      throw new BadRequestException(
+        'Unauthorized. Override is only available to ADMIN accounts',
+      );
+    }
+
+    const user = await this.userService.findByIdentifier(identifier);
+    const updatedUser = await this.userService.unarchiveUser(user?.id);
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `Successfully unarchived user: ${updatedUser?.uuid}`,
+      data: updatedUser,
+    });
+  }
 }

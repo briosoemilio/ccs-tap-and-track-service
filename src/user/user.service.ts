@@ -178,4 +178,18 @@ export class UserService {
       data: updateUserDto,
     });
   }
+
+  async archiveUser(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isArchived: true },
+    });
+  }
+
+  async unarchiveUser(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isArchived: false },
+    });
+  }
 }
