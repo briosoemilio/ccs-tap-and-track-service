@@ -166,4 +166,11 @@ export class ItemService {
       data: { isArchived: false },
     });
   }
+
+  async updateStatusItems(computerId: number, status: ItemStatus) {
+    return this.prisma.item.updateMany({
+      where: { computerId },
+      data: { status },
+    });
+  }
 }

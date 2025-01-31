@@ -36,4 +36,21 @@ export class MaintenanceService {
       itemsPerPage,
     };
   }
+
+  async findById(_id: string) {
+    const id = parseInt(_id);
+    const maintenance = await this.prisma.maintenance.findFirst({
+      where: { id },
+    });
+    return maintenance;
+  }
+
+  async markAsDone(_id: string) {
+    const id = parseInt(_id);
+    const maintenance = await this.prisma.maintenance.update({
+      where: { id },
+      data: { isDone: true },
+    });
+    return maintenance;
+  }
 }
