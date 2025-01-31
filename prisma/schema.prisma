@@ -165,6 +165,7 @@ model Maintenance {
   scheduleDate DateTime
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  isDone       Boolean  @default(false)
 
   // Relationships
   computer Computer @relation(fields: [computerId], references: [id])
