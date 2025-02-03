@@ -48,6 +48,7 @@ export class AuthService {
       idNumber: user?.idNumber || '',
       email: user.email,
       role: user.role,
+      cardKey: user?.cardKey || '',
     };
 
     const token = await this.jwtService.signAsync(payload, {
@@ -71,6 +72,7 @@ export class AuthService {
       idNumber: user?.idNumber || '',
       email: user.email,
       role: user.role,
+      cardKey: user?.cardKey || '',
     };
 
     const token = await this.jwtService.signAsync(payload, {
@@ -96,6 +98,7 @@ export class AuthService {
       idNumber: user?.idNumber || '',
       email: user.email,
       role: user.role,
+      cardKey: user?.cardKey || '',
     };
 
     const token = await this.jwtService.signAsync(payload, {

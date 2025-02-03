@@ -7,4 +7,5 @@ export type Payload = {
   email: string;
   uuid: string;
   role: Role;
+  cardKey: string;
 };
