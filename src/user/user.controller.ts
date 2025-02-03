@@ -354,4 +354,38 @@ export class UserController {
       data: updatedUser,
     });
   }
+
+  @Patch('write-card-key') async writeCardKey(
+    @Body() writeCardKeyDto: { cardKey: string },
+    @Request() req,
+  ) {
+    // Get user details
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    const uuid = decodedToken?.uuid
+    const user = await this.userService.findByIdentifier(uuid);
+
+    const updatedUser = await this.userService.writeCardKey(
+      user?.id,
+      writeCardKeyDto?.cardKey,
+    );
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `Successfully written card key for user: ${updatedUser?.uuid}`,
+      data: updatedUser,
+    });
+  }
+
+  @Get('card-key-check/:cardKey') async cardKeyCheck(
+    @Param('cardKey') cardKey: string,
+  ) {
+    const isCardKeyUsed = await this.userService.cardKeyCheck(cardKey);
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `Successfully checked card key: ${cardKey}`,
+      data: { isCardKeyUsed },
+    });
+  }
 }

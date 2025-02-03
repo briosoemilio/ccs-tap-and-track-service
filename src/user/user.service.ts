@@ -120,6 +120,11 @@ export class UserService {
       return await this.findByEmail(identifier);
     }
 
+    const userByCardKey = await this.prisma.user.findFirst({
+      where: { cardKey: identifier },
+    });
+    if (userByCardKey) return userByCardKey;
+
     // if identifier is id number
     return await this.findByIdNumber(identifier);
   }
@@ -191,5 +196,22 @@ export class UserService {
       where: { id },
       data: { isArchived: false },
     });
+  }
+
+  async writeCardKey(id: number, cardKey: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { cardKey },
+    });
+  }
+
+  async cardKeyCheck(cardKey: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { cardKey },
+    });
+    if (user) {
+      return true;
+    }
+    return false;
   }
 }
