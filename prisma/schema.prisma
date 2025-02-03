@@ -119,6 +119,7 @@ model User {
   ComputerLog ComputerLog[]
   metadata    String        @default("{}")
   isArchived  Boolean       @default(false)
+  cardKey     String        @default("")
   Maintenance Maintenance[]
 }
 
