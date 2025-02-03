@@ -362,7 +362,7 @@ export class UserController {
     // Get user details
     const bearerToken = req.headers.authorization?.split(' ')[1];
     const decodedToken = await this.jwtService.decode(bearerToken);
-    const uuid = decodedToken?.uuid
+    const uuid = decodedToken?.uuid;
     const user = await this.userService.findByIdentifier(uuid);
 
     const updatedUser = await this.userService.writeCardKey(
@@ -386,6 +386,30 @@ export class UserController {
       statusCode: HttpStatus.OK,
       message: `Successfully checked card key: ${cardKey}`,
       data: { isCardKeyUsed },
+    });
+  }
+
+  @Patch('reset-card-key/:identifier') async resetCardKey(
+    @Param('identifier') identifier: string,
+    @Request() req,
+  ) {
+    // Check if admin
+    const bearerToken = req.headers.authorization?.split(' ')[1];
+    const decodedToken = await this.jwtService.decode(bearerToken);
+    const role = decodedToken?.role;
+    if (role !== Role.SUPER_ADMIN) {
+      throw new BadRequestException(
+        'Unauthorized. Override is only available to SUPER ADMIN accounts',
+      );
+    }
+
+    const user = await this.userService.findByIdentifier(identifier);
+    const updatedUser = await this.userService.writeCardKey(user?.id, '');
+
+    return formatResponse({
+      statusCode: HttpStatus.OK,
+      message: `Successfully reset card key for user: ${updatedUser?.uuid}`,
+      data: updatedUser,
     });
   }
 }

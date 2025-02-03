@@ -38,9 +38,14 @@ export class AuthService {
       createAuthDto.email,
       createAuthDto.password,
     );
-    if (user?.role === Role.ADMIN || user?.role === Role.SUPER_ADMIN) {
+    const isUserAdmin =
+      user?.role === Role.ADMIN || user?.role === Role.SUPER_ADMIN;
+    const isCardKeyConsistent = createAuthDto?.cardKey === user?.cardKey;
+
+    if (isUserAdmin && !isCardKeyConsistent) {
       throw new UnauthorizedException('Account unauthorized.');
     }
+
     const payload: Payload = {
       name: user.name,
       uuid: user.uuid,
