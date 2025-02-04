@@ -42,7 +42,7 @@ export class AuthService {
       user?.role === Role.ADMIN || user?.role === Role.SUPER_ADMIN;
     const isCardKeyConsistent = createAuthDto?.cardKey === user?.cardKey;
 
-    if (isUserAdmin && !isCardKeyConsistent) {
+    if (isUserAdmin && !isCardKeyConsistent && user?.cardKey !== '') {
       throw new UnauthorizedException('Account unauthorized.');
     }
 
